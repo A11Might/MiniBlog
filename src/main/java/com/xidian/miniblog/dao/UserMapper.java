@@ -18,4 +18,6 @@ public interface UserMapper {
 
     int insertUser(User user);
 
+    int updateUserStatus(int userId, int status);
+
 }

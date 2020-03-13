@@ -35,4 +35,8 @@
         values(#{username},#{password},#{salt},#{email},#{status},#{activationCode},#{headerUrl},#{createTime})
     </insert>
 
+    <update id="updateUserStatus">
+        update user set status = #{status} where id = #{userId}
+    </update>
+
 </mapper>

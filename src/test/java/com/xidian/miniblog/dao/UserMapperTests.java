@@ -40,4 +40,10 @@ public class UserMapperTests {
         System.out.println(user3);
     }
 
+    @Test
+    public void updateTest() {
+        userMapper.updateUserStatus(155, 1);
+        System.out.println(userMapper.selectUserById(155));
+    }
+
 }

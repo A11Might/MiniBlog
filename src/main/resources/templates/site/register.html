@@ -7,28 +7,51 @@
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
 </head>
 <body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a th:href="@{/index}" class="navbar-brand">Mini Blog</a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <div class="navbar-nav">
+                <a th:href="@{/index}" class="nav-item nav-link active">首页</a>
+                <a th:href="@{/register}" class="nav-item nav-link">注册</a>
+                <a th:href="@{/login}" class="nav-item nav-link">登录</a>
+            </div>
+        </ul>
+        <form action="" class="form-inline my-2 my-md-0">
+            <input type="text" class="form-control mr-sm-2" placeholder="请输入关键字">
+            <button class="btn btn-outline-success my-2 my-md-0">搜索</button>
+        </form>
+    </div>
+</nav>
+
 <div class="container"><br>
     <form method="post" th:action="@{/register}" novalidate class="needs-validation">
         <div class="form-group">
             <label for="username">用户名</label>
             <input type="text"
-                   id = "username"
-                   class="form-control" placeholder="用户名" required>
-<!--            <div class="invalid-feedback">用户名格式不正确!</div>-->
+                   id="username" name="username" th:value="${user==null?'':user.username}"
+                   th:class="|form-control ${usernameMsg==null?'':'is-invalid'}|" placeholder="用户名" required>
+            <!--            <div class="valid-feedback">用户名正确!</div>-->
+            <div class="invalid-feedback" th:if="${usernameMsg!=null}" th:utext="${usernameMsg}">用户名不正确!</div>
         </div>
         <div class="form-group">
             <label for="email">邮箱</label>
             <input type="email"
-                   id = "email"
-                   class="form-control" placeholder="邮箱" required>
-<!--            <div class="invalid-feedback">邮箱格式不正确!</div>-->
+                   id="email" name="email" th:value="${user==null?'':user.email}"
+                   th:class="|form-control ${emailMsg==null?'':'is-invalid'}|" placeholder="邮箱" required>
+            <!--            <div class="valid-feedback">邮箱正确!</div>-->
+            <div class="invalid-feedback" th:if="${emailMsg!=null}" th:utext="${emailMsg}">邮箱格式不正确!</div>
         </div>
         <div class="form-group">
             <label for="password">密码</label>
             <input type="password"
-                   id = "password"
-                   class="form-control" placeholder="密码" required>
-<!--            <div class="invalid-feedback">密码格式不正确!</div>-->
+                   id="password" name="password" th:value="${user==null?'':user.password}"
+                   th:class="|form-control ${passwordMsg==null?'':'is-invalid'}|" placeholder="密码" required>
+            <!--            <div class="valid-feedback">密码正确!</div>-->
+            <div class="invalid-feedback" th:if="${passwordMsg!=null}" th:utext="${passwordMsg}">密码格式不正确!</div>
         </div>
         <button type="submit" class="btn btn-primary">注册</button>
     </form>

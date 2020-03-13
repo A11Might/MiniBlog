@@ -1,32 +1,57 @@
 <!DOCTYPE html>
-<html lang="zh_CN">
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>登录页面</title>
-    <link rel="stylesheet" href="../../static/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
 </head>
 <body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a th:href="@{/index}" class="navbar-brand">Mini Blog</a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <div class="navbar-nav">
+                <a th:href="@{/index}" class="nav-item nav-link active">首页</a>
+                <a th:href="@{/register}" class="nav-item nav-link">注册</a>
+                <a th:href="@{/login}" class="nav-item nav-link">登录</a>
+            </div>
+        </ul>
+        <form action="" class="form-inline my-2 my-md-0">
+            <input type="text" class="form-control mr-sm-2" placeholder="请输入关键字">
+            <button class="btn btn-outline-success my-2 my-md-0">搜索</button>
+        </form>
+    </div>
+</nav>
+
 <div class="container"><br>
-    <form action="" novalidate class="needs-validation">
+    <form method="post" th:action="@{/login}" novalidate class="needs-validation">
         <div class="form-group">
-            <label for="">用户名</label>
-            <input type="text" class="form-control is-valid" placeholder="用户名">
-            <div class="valid-feedback">邮箱正确!</div>
-            <div class="invalid-feedback">邮箱不正确!</div>
+            <label for="username">用户名</label>
+            <input type="text"
+                   id="username" name="username" th:value="${user==null?'':user.username}"
+                   th:class="|form-control ${usernameMsg==null?'':'is-invalid'}|" placeholder="用户名">
+<!--            <div class="valid-feedback">用户名正确!</div>-->
+            <div class="invalid-feedback" th:if="${usernameMsg!=null}" th:utext="${usernameMsg}">用户名不正确!</div>
 
         </div>
         <div class="form-group">
-            <label for="">密码</label>
-            <input type="password" class="form-control is-invalid" placeholder="密码">
-            <div class="valid-feedback">密码格式正确!</div>
-            <div class="invalid-feedback">密码格式不正确!</div>
+            <label for="password">密码</label>
+            <input type="password"
+                   id="password" name="password" th:value="${user==null?'':user.password}"
+                   th:class="|form-control ${passwordMsg==null?'':'is-invalid'}|" placeholder="密码">
+<!--            <div class="valid-feedback">密码正确!</div>-->
+            <div class="invalid-feedback" th:if="${passwordMsg!=null}" th:utext="${passwordMsg}">密码不正确!</div>
         </div>
         <div class="custom-control custom-checkbox">
-            <input type="checkbox" class="custom-control-input" id="remember">
+            <input type="checkbox" class="custom-control-input" id="remember" name="remember">
             <label class="custom-control-label" for="remember">记住我</label>
         </div>
-        <button class="btn btn-primary">登录</button>
+        <br>
+        <button type="submit" class="btn btn-primary">登录</button>
     </form>
 
     <script>
@@ -51,7 +76,7 @@
     </script>
 
 </div>
-<script src="../../static/js/jquery.min.js"></script>
-<script src="../../static/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
 </html>

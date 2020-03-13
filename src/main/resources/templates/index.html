@@ -8,22 +8,22 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-md navbar-light bg-light">
-    <a href="#" class="navbar-brand">Mini Blog</a>
+    <a th:href="@{/index}" class="navbar-brand">Mini Blog</a>
     <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
             <div class="navbar-nav">
-                <a href="#" class="nav-item nav-link active">首页</a>
-                <a href="#" class="nav-item nav-link">消息</a>
-                <a href="#" class="nav-item nav-link">注册</a>
-                <a href="#" class="nav-item nav-link">登录</a>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">username</a>
+                <a th:href="@{/index}" class="nav-item nav-link active">首页</a>
+                <a href="#" class="nav-item nav-link" th:if="${loginUser!=null}">消息</a>
+                <a th:href="@{/register}" class="nav-item nav-link" th:if="${loginUser==null}">注册</a>
+                <a th:href="@{/login}" class="nav-item nav-link" th:if="${loginUser==null}">登录</a>
+                <li class="nav-item dropdown" th:if="${loginUser!=null}">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" th:utext="${loginUser.username}">username</a>
                     <div class="dropdown-menu">
                         <a href="#" class="dropdown-item">个人信息</a>
-                        <a href="#" class="dropdown-item">退出登录</a>
+                        <a th:href="@{logout}" class="dropdown-item">退出登录</a>
                     </div>
                 </li>
             </div>

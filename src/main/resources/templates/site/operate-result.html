@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>首页</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <a th:href="@{/index}" class="navbar-brand">Mini Blog</a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <div class="navbar-nav">
+                <a th:href="@{/index}" class="nav-item nav-link active">首页</a>
+                <a th:href="@{/register}" class="nav-item nav-link">注册</a>
+                <a th:href="@{/login}" class="nav-item nav-link">登录</a>
+            </div>
+        </ul>
+        <form action="" class="form-inline my-2 my-md-0">
+            <input type="text" class="form-control mr-sm-2" placeholder="请输入关键字">
+            <button class="btn btn-outline-success my-2 my-md-0">搜索</button>
+        </form>
+    </div>
+</nav>
+
+<div class="container"><br>
+    <div class="card">
+        <div class="card-body">
+            <p class="lead" th:text="${msg}">您的账号已经激活成功,可以正常使用了!</p>
+            <hr class="my-4">
+            <p>
+                系统会在 <span id="seconds" class="text-danger">8</span> 秒后自动跳转,
+                您也可以点此 <a id="target" th:href="@{${target}}" class="text-primary">链接</a>, 手动跳转!
+            </p>
+        </div>
+    </div>
+    <br>
+</div>
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script>
+    $(function(){
+        setInterval(function(){
+            var seconds = $("#seconds").text();
+            $("#seconds").text(--seconds);
+            if(seconds == 0) {
+                location.href = $("#target").attr("href");
+            }
+        }, 1000);
+    });
+</script>
+</body>
+</html>
