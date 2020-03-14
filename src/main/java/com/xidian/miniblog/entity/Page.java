@@ -51,6 +51,14 @@ public class Page {
         this.rows = rows;
     }
 
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
     /**
      * 获得总页数
      *
@@ -64,11 +72,24 @@ public class Page {
         return total;
     }
 
-    public String getPath() {
-        return path;
+    /**
+     * 获取当前页面显示的起始页码数
+     *
+     * @return
+     */
+    public int getFrom() {
+        int from = current - 2;
+        return from > 0 ? from : 1;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    /**
+     * 获取当前页面显示的结束页码数
+     *
+     * @return
+     */
+    public int getTo() {
+        int to = current + 2;
+        int total = getTotal();
+        return Math.min(to, total);
     }
 }

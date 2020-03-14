@@ -177,6 +177,34 @@ public class UserService implements BlogConstant {
         redisTemplate.opsForValue().set(loginTicketKey, loginTicket);
     }
 
+    public Map<String, Object> modifyPassword(int userId, String oldPassword, String newPassword) {
+        Map<String , Object> map = new HashMap<>();
+
+        // 空值处理
+        if (StringUtils.isBlank(oldPassword)) {
+            map.put("oldPasswordMsg", "旧密码不能为空");
+            return map;
+        }
+        if (StringUtils.isBlank(newPassword)) {
+            map.put("newPasswordMsg", "新密码不能为空");
+            return map;
+        }
+
+        // 验证旧密码
+        User user = userMapper.selectUserById(userId);
+        oldPassword = BlogUtil.md5(oldPassword + user.getSalt());
+        if (!user.getPassword().equals(oldPassword)) {
+            map.put("oldPasswordMsg", "旧密码错误");
+            return map;
+        }
+
+        // 修改密码
+        newPassword = BlogUtil.md5(newPassword + user.getSalt());
+        userMapper.updateUserPassword(userId, newPassword);
+
+        return map;
+    }
+
     public LoginTicket getLoginTicketByTicket(String ticket) {
         String loginTicketKey = RedisKeyUtil.getLoginTicketKey(ticket);
         return (LoginTicket) redisTemplate.opsForValue().get(loginTicketKey);

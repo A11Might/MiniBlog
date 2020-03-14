@@ -32,7 +32,7 @@ public class PostMapperTests {
         post.setStatus(0);
         post.setCommentCount(0);
         post.setCreateTime(new Date());
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             postMapper.insertPost(post);
         }
     }

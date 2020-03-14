@@ -74,7 +74,6 @@ public class LoginController implements BlogConstant {
 
     @RequestMapping(path = "/login", method = RequestMethod.POST)
     public String login(Model model, User user, boolean remember, HttpServletResponse response) {
-
         int expiredSeconds = remember ? REMEMBER_EXPIRED_SECONDS : DEFAULT_EXPIRED_SECONDS;
         // 真是干了，我把过期时间设为了 0，导致登录凭证一直无效，我还说怎么拦截器拦截到了，咋没用户信息呢。
         Map<String, Object> map = userService.login(user, expiredSeconds);

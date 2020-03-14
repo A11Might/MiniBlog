@@ -7,7 +7,9 @@
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
 </head>
 <body>
-<nav class="navbar navbar-expand-md navbar-light bg-light">
+
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top">
     <a th:href="@{/index}" class="navbar-brand">Mini Blog</a>
     <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
@@ -15,9 +17,9 @@
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
             <div class="navbar-nav">
-                <a th:href="@{/index}" class="nav-item nav-link active">首页</a>
+                <a th:href="@{/index}" class="nav-item nav-link">首页</a>
                 <a th:href="@{/register}" class="nav-item nav-link">注册</a>
-                <a th:href="@{/login}" class="nav-item nav-link">登录</a>
+                <a th:href="@{/login}" class="nav-item nav-link active">登录</a>
             </div>
         </ul>
         <form action="" class="form-inline my-2 my-md-0">
@@ -27,6 +29,7 @@
     </div>
 </nav>
 
+<!-- 登录框 -->
 <div class="container"><br>
     <form method="post" th:action="@{/login}" novalidate class="needs-validation">
         <div class="form-group">
@@ -76,6 +79,17 @@
     </script>
 
 </div>
+
+<!-- 页脚 -->
+<nav class="navbar navbar-dark bg-dark justify-content-between fixed-bottom" th:replace="index::footer">
+    <span class="navbar-text">
+        Best wishes to you !
+    </span>
+    <span class="navbar-text">
+        &copy; 2020 QiHang Hu <a href="https://github.com/A11Might/MiniBlog" title="主页">GitHub</a> - <a href="http://www.beian.miit.gov.cn/" title="信息产业部备案管理系统网址" target="_blank">陕ICP备19025889号</a>
+    </span>
+</nav>
+
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 </body>
