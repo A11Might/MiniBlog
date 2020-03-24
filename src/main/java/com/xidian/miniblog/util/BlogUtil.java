@@ -62,6 +62,10 @@ public class BlogUtil {
         return getJSONString(code, msg, null);
     }
 
+    public static String getJSONString(int code, Map<String, Object> map) {
+        return getJSONString(code, null, map);
+    }
+
     public static String getJSONString(int code) {
         return getJSONString(code, null, null);
     }

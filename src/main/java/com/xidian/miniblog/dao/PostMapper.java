@@ -25,8 +25,8 @@ public interface PostMapper {
 
     int updateCommentCount(int postId, int commentCount);
 
-    int updateStatus(int id, int status);
+    int updateStatus(int postId, int status);
 
-    int updateScore(int id, double score);
+    int updateScore(int postId, double score);
 
 }

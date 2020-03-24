@@ -1,16 +1,17 @@
 $(function(){
-    $("#publishBtn").click(publish);
+    $("#commentBtn").click(comment);
+    $("#deleteBtn").click(deletePost);
 });
 
-// 监听 publishBtn 按钮，单击时触发 js。（注意这个方法没有参数的出入）
-function publish() {
+function comment() {
     // 获取内容
+    var postId = $("#postId").val();
     var content = $("#content").val();
     // 发送异步请求(POST)
     $.post(
-        CONTEXT_PATH + "/post/add",
-        {"content":content},
-        function(data) {
+        CONTEXT_PATH + "/comment/add/",
+            {"content":content, "postId":postId},
+            function(data) {
             data = $.parseJSON(data);
             // 在提示框中显示返回消息
             $("#hintBody").text(data.msg);
@@ -28,52 +29,19 @@ function publish() {
     );
 }
 
-// 首页全部的评论按钮都是一个，但需要按楼层给评论框 textarea 取 id（id = "commentContent" + level），这样每次点击按钮运行 js 方法时，
-// 可以取到对应楼层微博的评论框中的信息。
-function commentPost(btn, postId, level) {
-    // 获取评论
-    var commentContent = $("#commentContent" + level).val();
-    // 发送异步请求(POST)
-    $.post(
-        CONTEXT_PATH + "/comment/add",
-        {"content":commentContent, "postId":postId},
-        function(data) {
-            data = $.parseJSON(data);
-            // 在提示框中显示返回消息
-            $("#hintBody").text(data.msg);
-            // 显示提示框
-            $("#hintModal").modal("show");
-            // 2秒后,自动隐藏提示框
-            setTimeout(function(){
-                $("#hintModal").modal("hide");
-                // 刷新页面
-                if(data.code == 0) {
-                    window.location.reload();
-                }
-            }, 2000);
-        }
-    );
-}
-
-function deletePost(btn, postId) {
-    // 发送异步请求(POST)
+function deletePost() {
+    var postId = $("#postId").val();
     $.post(
         CONTEXT_PATH + "/post/delete",
         {"postId":postId},
-        function(data) {
+        function (data) {
             data = $.parseJSON(data);
-            // 在提示框中显示返回消息
-            $("#hintBody").text(data.msg);
-            // 显示提示框
-            $("#hintModal").modal("show");
-            // 2秒后,自动隐藏提示框
-            setTimeout(function(){
-                $("#hintModal").modal("hide");
-                // 刷新页面
-                if(data.code == 0) {
-                    window.location.reload();
-                }
-            }, 2000);
+            if (data.code == 0) {
+                location.href = CONTEXT_PATH + "/index";
+            } else {
+                // 浏览器弹出错误信息
+                alert(data.msg);
+            }
         }
     );
 }
@@ -101,7 +69,6 @@ function deleteComment(btn, commentId) {
     );
 }
 
-// 首页全部的点赞按钮都是一个，当点击按钮运行 js 时，由于出入参数不同，会对不同的实体进行操作。
 function like(btn, entityType, entityId, entityOwnerId, postId) {
     $.post(
         CONTEXT_PATH + "/like",

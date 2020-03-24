@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xidian.miniblog.dao.CommentMapper">
+
+    <sql id="selectFields">
+        id,user_id,entity_type,entity_id,target_id,content,status,create_time,score
+    </sql>
+
+    <sql id="insertFields">
+        user_id,entity_type,entity_id,target_id,content,status,create_time,score
+    </sql>
+
+    <update id="updateCommentStatus">
+        update comment
+        set status = #{status}
+        where id = #{commentId}
+    </update>
+
+    <select id="selectCommentById" resultType="com.xidian.miniblog.entity.Comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where id = #{commentId}
+    </select>
+
+    <select id="selectCommentsByEntity" resultType="com.xidian.miniblog.entity.Comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where entity_type = #{entityType} and entity_id = #{entityId} and status != 1
+        order by create_time asc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="selectCommentCountByEntity" resultType="java.lang.Integer">
+        select count(id)
+        from comment
+        where entity_type = #{entityType} and entity_id = #{entityId} and status != 1
+    </select>
+
+    <insert id="insertComment" parameterType="com.xidian.miniblog.entity.Comment" keyProperty="id">
+        insert into comment (<include refid="insertFields"></include>)
+        values(#{userId},#{entityType},#{entityId},#{targetId},#{content},#{status},#{createTime},#{score})
+    </insert>
+
+</mapper>

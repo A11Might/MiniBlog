@@ -52,4 +52,12 @@ public class PostMapperTests {
         System.out.println(postMapper.selectPostRows(0));
         System.out.println(postMapper.selectPostRows(155));
     }
+
+    @Test
+    public void updateTest() {
+        postMapper.updateStatus(282, 0);
+        postMapper.updateCommentCount(282, 100);
+        postMapper.updateScore(282, 10.0);
+        System.out.println(postMapper.selectPostById(282));
+    }
 }

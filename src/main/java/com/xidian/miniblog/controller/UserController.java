@@ -4,8 +4,10 @@ import com.xidian.miniblog.entity.HostHolder;
 import com.xidian.miniblog.entity.Page;
 import com.xidian.miniblog.entity.Post;
 import com.xidian.miniblog.entity.User;
+import com.xidian.miniblog.service.FollowService;
 import com.xidian.miniblog.service.PostService;
 import com.xidian.miniblog.service.UserService;
+import com.xidian.miniblog.util.BlogConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +26,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/user")
-public class UserController {
+public class UserController implements BlogConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -37,6 +39,9 @@ public class UserController {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private FollowService followService;
+
     @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
     public String getUserProfilePage(Model model,
                                      @PathVariable("userId") int userId,
@@ -44,11 +49,25 @@ public class UserController {
         page.setRows(postService.getPostRows(userId));
         page.setPath("/user/profile/" + userId);
 
+        User loginUser = hostHolder.getUser();
         User user = userService.getUserById(userId);
         model.addAttribute("user", user);
 
         List<Post> postList = postService.getPosts(user.getId(), page.getOffset(), page.getLimit());
         model.addAttribute("postList", postList);
+
+        int followerCount = (int) followService.getEntityFollowerCount(BlogConstant.ENTITY_TYPE_USER, userId);
+        model.addAttribute("followerCount", followerCount);
+
+        int followeeCount = (int) followService.getUserFolloweeCount(userId, BlogConstant.ENTITY_TYPE_USER);
+        model.addAttribute("followeeCount", followeeCount);
+
+        boolean isFollow = false;
+        if (loginUser != null) {
+            isFollow = followService.getFollowStatus(hostHolder.getUser().getId(), BlogConstant.ENTITY_TYPE_USER, userId);
+        }
+
+        model.addAttribute("isFollow", isFollow);
 
         return "/site/profile";
     }

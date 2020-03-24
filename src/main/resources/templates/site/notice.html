@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>通知页面</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top" th:replace="index::header">
+    <a href="#" class="navbar-brand">Mini Blog</a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <div class="navbar-nav">
+                <a href="#" class="nav-item nav-link active">首页</a>
+                <a href="#" class="nav-item nav-link">消息<span class="badge badge-pill badge-danger">99+</span></a>
+                <a href="#" class="nav-item nav-link">注册</a>
+                <a href="#" class="nav-item nav-link">登录</a>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">username</a>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item">个人信息</a>
+                        <a href="#" class="dropdown-item">退出登录</a>
+                    </div>
+                </li>
+            </div>
+        </ul>
+        <form action="" class="form-inline my-2 my-md-0">
+            <input type="text" class="form-control mr-sm-2" placeholder="请输入关键字">
+            <button class="btn btn-outline-success my-2 my-md-0">搜索</button>
+        </form>
+    </div>
+</nav>
+
+<!-- 通知页面主体 -->
+<div class="container"><br>
+
+    <!-- 标签栏 -->
+    <nav>
+        <div class="nav nav-tabs" id="nav-tab" role="tablist">
+            <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">通知
+                <span class="badge badge-pill badge-danger" th:if="${totalNoticeUnreadCount>0}" th:utext="${totalNoticeUnreadCount}">99+</span>
+            </a></a>
+            <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">私信（TODO）</a></a>
+        </div>
+    </nav>
+    <br>
+
+    <!-- 点赞通知 -->
+    <div class="card" th:if="${likeNoticeVO!=null}">
+        <div class="card-body">
+            <div class="media pb-3 border-bottom">
+                <div class="media-body">
+                    <h5 class="card-title">点赞通知<span class="badge badge-pill badge-danger"
+                                                     th:if="${likeNoticeVO.unreadCount>0}" th:utext="${likeNoticeVO.unreadCount}">99+</span></h5>
+                    <div class="text-muted mt-3">
+                        <b th:text="${#dates.format(likeNoticeVO.notice.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <p class="card-text">
+                <a th:href="@{|/user/profile/${likeNoticeVO.actorUser.id}|}">
+                    <b th:utext="${likeNoticeVO.actorUser.username}">username</b>
+                </a>
+                点赞了你的<a th:href="@{|/post/detail/${likeNoticeVO.entityId}|}">微博</a>
+            </p>
+            <a th:href="@{/notice/detail/1}" class="btn btn-outline-secondary btn-sm">查看更多</a>
+        </div>
+    </div>
+    <br>
+
+    <!-- 评论通知 -->
+    <div class="card" th:if="${commentNoticeVO!=null}">
+        <div class="card-body">
+            <div class="media pb-3 border-bottom">
+                <div class="media-body">
+                    <h5 class="card-title">评论通知<span class="badge badge-pill badge-danger"
+                                                     th:if="${commentNoticeVO.unreadCount>0}"  th:utext="${commentNoticeVO.unreadCount}">99+</span></h5>
+                    <div class="text-muted mt-3">
+                        <b th:text="${#dates.format(commentNoticeVO.notice.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <p class="card-text">
+                <a th:href="@{|/user/profile/${commentNoticeVO.actorUser.id}|}">
+                    <b th:utext="${commentNoticeVO.actorUser.username}">username</b>
+                </a>
+                评论了你的<a th:href="@{|/post/detail/${commentNoticeVO.entityId}|}">微博</a>
+            </p>
+            <a th:href="@{/notice/detail/2}" class="btn btn-outline-secondary btn-sm">查看更多</a>
+        </div>
+    </div>
+    <br>
+
+    <!-- 关注通知 -->
+    <div class="card" th:if="${followNoticeVO!=null}">
+        <div class="card-body">
+            <div class="media pb-3 border-bottom">
+                <div class="media-body">
+                    <h5 class="card-title">关注通知<span class="badge badge-pill badge-danger"
+                                                     th:if="${followNoticeVO.unreadCount>0}" th:utext="${followNoticeVO.unreadCount}">99+</span></h5>
+                    <div class="text-muted mt-3">
+                        <b th:text="${#dates.format(followNoticeVO.notice.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <p class="card-text">
+                <a th:href="@{|/user/profile/${followNoticeVO.actorUser.id}|}">
+                    <b th:utext="${followNoticeVO.actorUser.username}">username</b>
+                </a>
+                关注了你。
+            </p>
+            <a th:href="@{/notice/detail/3}" class="btn btn-outline-secondary btn-sm">查看更多</a>
+        </div>
+    </div>
+    <br>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+</div>
+
+<!-- 页脚 -->
+<nav class="navbar navbar-dark bg-dark justify-content-between fixed-bottom" th:replace="index::footer">
+    <span class="navbar-text">
+        Best wishes to you !
+    </span>
+    <span class="navbar-text">
+        &copy; 2020 QiHang Hu <a href="https://github.com/A11Might/MiniBlog" title="主页">GitHub</a> - <a href="http://www.beian.miit.gov.cn/" title="信息产业部备案管理系统网址" target="_blank">陕ICP备19025889号</a>
+    </span>
+</nav>
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

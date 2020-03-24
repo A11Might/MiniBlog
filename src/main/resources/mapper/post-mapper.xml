@@ -12,6 +12,24 @@
         user_id, content, status, create_time, comment_count, score
     </sql>
 
+    <update id="updateCommentCount">
+        update post
+        set comment_count = #{commentCount}
+        where id = #{postId}
+    </update>
+
+    <update id="updateStatus">
+        update post
+        set status = #{status}
+        where id = #{postId}
+    </update>
+
+    <update id="updateScore">
+        update post
+        set score = #{score}
+        where id = #{postId}
+    </update>
+
     <select id="selectPostById" resultType="Post">
         select <include refid="selectFields"></include>
         from post

@@ -56,57 +56,30 @@
             </div>
             <br>
             <p class="card-text" th:utext="${postVO.post.content}">微博内容</p>
-            <button type="button" class="btn btn-outline-secondary btn-sm">点赞</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm">评论</button>
-            <button type="button" class="btn btn-outline-secondary btn-sm">删除</button>
-        </div>
-    </div>
-    <br>
-
-    <!-- 评论列表 -->
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-title">评论列表</h5>
-            <div class="card">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-1">
-                            <img src="../../static/img/header.jpg" alt="" class="img-fluid">
-                        </div>
-                        <div class="col">
-                            <h5 class="card-title">username</h5>
-                            <h6 class="card-subtitle mb-2 text-muted">2020-03-11</h6>
-                        </div>
-                    </div>
-                    <p class="card-text">今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！</p>
-                    <div class="row">
-                        <div class="col"></div>
-                        <div class="col-4">
-                            <img src="../../static/img/header.jpg" class="rounded mx-auto d-block img-fluid">
-                        </div>
-                        <div class="col"></div>
-                    </div>
-                    <br>
-                    <button type="button" class="btn btn-outline-secondary btn-sm">点赞</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm">评论</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm">删除</button>
-                </div>
-            </div><br>
+            <!-- 隐藏的输入框来保存帖子 id -->
+            <input type="hidden" id="postId" th:value="${postVO.post.id}">
+            <a href="javascript:;" th:onclick="|like(this,1,${postVO.post.id},${postVO.post.userId},${postVO.post.id});|" class="btn btn-outline-secondary btn-sm" id="likeBtn">
+                <b th:utext="${postVO.likeStatus?'已赞':'赞'}">赞</b> <i th:utext="${postVO.likeCount}">11</i>
+            </a>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="deleteBtn"
+                    th:if="${loginUser!=null&&loginUser.id==postVO.user.id}">删除</button>
         </div>
     </div>
     <br>
 
     <!-- 评论框 -->
-    <div class="card">
+    <div class="card" th:if="${loginUser!=null}">
         <div class="card-body">
-            <label for="">发表评论</label>
-            <textarea class="form-control"></textarea>
+            <label for="content">发表评论</label>
+            <!-- 隐藏的输入框来保存帖子 id -->
+            <input type="hidden" id="postId" th:value="${postVO.post.id}">
+            <textarea class="form-control" id="content"></textarea>
             <br>
-            <button type="button" class="btn btn-success btn-sm">评论</button>
+            <button type="button" class="btn btn-success btn-sm" id="commentBtn">评论</button>
         </div>
-    </div>
+    </div><br>
 
-    <!-- 提示框 -->
+    <!-- 弹出提示框 -->
     <div class="modal fade" id="hintModal" tabindex="-1" role="dialog" aria-labelledby="hintModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
@@ -121,8 +94,62 @@
     </div>
     <br>
 
+    <!-- 评论列表 -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">评论列表</h5>
+            <div class="card" th:each="commentVO:${postVO.commentVOList}">
+                <div class="card-body">
+                    <div class="media pb-3 border-bottom">
+                        <a th:href="@{|/user/profile/${commentVO.commentUser.id}|}">
+                            <img th:src="${commentVO.commentUser.headerUrl}" class="align-self-start mr-4 rounded-circle user-header" alt="用户头像" style="width:65px;height:65px;">
+                        </a>
+                        <div class="media-body">
+                            <h5 class="card-title" th:utext="${commentVO.commentUser.username}">username</h5>
+                            <div class="text-muted mt-3">
+                                发布于 <b th:text="${#dates.format(commentVO.comment.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b>
+                            </div>
+                        </div>
+                    </div>
+                    <br>
+                    <p class="card-text" th:utext="${commentVO.comment.content}">微博内容</p>
+                    <a href="javascript:;" th:onclick="|like(this,2,${commentVO.comment.id},${commentVO.comment.userId},${postVO.post.id});|" class="btn btn-outline-secondary btn-sm" id="likeCommentBtn">
+                        <b th:utext="${commentVO.likeStatus?'已赞':'赞'}">赞</b> <i th:utext="${commentVO.likeCount}">11</i>
+                    </a>
+                    <!-- TODO 回复评论功能 -->
+<!--                    <button class="btn btn-outline-secondary btn-sm" type="button" data-toggle="collapse" th:data-target="|#collapse${commentVO.comment.id}|" aria-expanded="false" aria-controls="collapseExample">-->
+<!--                        评论-->
+<!--                    </button>-->
+                    <a href="javascript:;" th:onclick="|deleteComment(this,${commentVO.comment.id});|" class="btn btn-outline-secondary btn-sm"
+                       th:if="${loginUser!=null?loginUser.id==commentVO.comment.userId:false}"><b>删除</b></a>
+<!--                    <div class="collapse" th:id="|collapse${commentVO.comment.id}|">-->
+<!--                        <br>-->
+<!--                        &lt;!&ndash; 前三评论 &ndash;&gt;-->
+<!--                        <ul class="list-group">-->
+<!--                            <li class="list-group-item">-->
+<!--                                <div class="d-flex w-100 justify-content-between">-->
+<!--                                    <h6 class="mb-1">comment user username</h6>-->
+<!--                                    <small>评论于<span>3 days ago</span></small>-->
+<!--                                </div>-->
+<!--                                <p class="mb-1">comment</p>-->
+<!--                                <button type="button" class="btn btn-outline-secondary btn-sm">点赞</button>-->
+<!--                                <button type="button" class="btn btn-outline-secondary btn-sm">删除</button>-->
+<!--                            </li>-->
+<!--                            <a class="list-group-item list-group-item-action flex-column align-items-start">-->
+<!--                                <small>查看更多</small>-->
+<!--                            </a>-->
+<!--                        </ul>-->
+
+<!--                    </div>-->
+                </div>
+            </div>
+            <br>
+        </div>
+    </div>
+    <br>
+
     <!-- 分页 -->
-    <nav aria-label="Page navigation">
+    <nav aria-label="Page navigation" th:replace="index::page">
         <ul class="pagination justify-content-center">
             <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
             <li class="page-item"><a class="page-link" href="#">1</a></li>
@@ -133,10 +160,12 @@
             <li class="page-item"><a class="page-link" href="#">下一页</a></li>
         </ul>
     </nav>
-    <br>
-    <br>
-    <br>
 
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
 </div>
 
 <!-- 页脚 -->
@@ -151,5 +180,7 @@
 
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/post-detail.js}"></script>
+<script th:src="@{/js/global.js}"></script>
 </body>
 </html>

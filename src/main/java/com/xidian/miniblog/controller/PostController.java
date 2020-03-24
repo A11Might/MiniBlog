@@ -1,10 +1,11 @@
 package com.xidian.miniblog.controller;
 
-import com.xidian.miniblog.entity.HostHolder;
-import com.xidian.miniblog.entity.Post;
-import com.xidian.miniblog.entity.User;
+import com.xidian.miniblog.entity.*;
+import com.xidian.miniblog.service.CommentService;
+import com.xidian.miniblog.service.LikeService;
 import com.xidian.miniblog.service.PostService;
 import com.xidian.miniblog.service.UserService;
+import com.xidian.miniblog.util.BlogConstant;
 import com.xidian.miniblog.util.BlogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author qhhu
@@ -25,7 +24,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/post")
-public class PostController {
+public class PostController implements BlogConstant {
 
     @Autowired
     private HostHolder hostHolder;
@@ -35,6 +34,12 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private LikeService likeService;
 
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     @ResponseBody
@@ -61,16 +66,48 @@ public class PostController {
 
     @RequestMapping(path = "/detail/{postId}", method = RequestMethod.GET)
     public String getPostDetailPage(Model model,
+                                    Page page,
                                     @PathVariable("postId") int postId) {
+        page.setRows(commentService.getCommentCountByEntity(ENTITY_TYPE_POST, postId));
+        page.setPath("/post/detail/" + postId);
+
         Post post = postService.getPostById(postId);
         User user = userService.getUserById(post.getUserId());
+        User loginUser = hostHolder.getUser();
+        List<Comment> commentList = commentService.getCommentsByEntity(ENTITY_TYPE_POST, postId, page.getOffset(), page.getLimit());
+        List<Map<String, Object>> commentVOList = new ArrayList<>();
+        for (Comment comment : commentList) {
+            Map<String, Object> commentVO = new HashMap<>();
+            User commentUser = userService.getUserById(comment.getUserId());
+            long commentLikeCount = likeService.getEntityLikeCount(ENTITY_TYPE_COMMENT, comment.getId());
+            boolean commentLikeStatus = loginUser == null ? false : likeService.getLikeStatus(loginUser.getId(), ENTITY_TYPE_COMMENT, comment.getId());
+            commentVO.put("likeCount", commentLikeCount);
+            commentVO.put("likeStatus", commentLikeStatus);
+            commentVO.put("commentUser", commentUser);
+            commentVO.put("comment", comment);
+            commentVOList.add(commentVO);
+        }
         Map<String, Object> postVO = new HashMap<>();
+        long postLikeCount = likeService.getEntityLikeCount(ENTITY_TYPE_POST, post.getId());
+        // 这里可能未登录，需要判断。
+        boolean postLikeStatus = loginUser == null ? false : likeService.getLikeStatus(loginUser.getId(), ENTITY_TYPE_POST, post.getId());
+        postVO.put("likeCount", postLikeCount);
+        postVO.put("likeStatus", postLikeStatus);
         postVO.put("post", post);
         postVO.put("user", user);
+        postVO.put("commentVOList", commentVOList);
 
         model.addAttribute("postVO", postVO);
 
         return "/site/post-detail";
+    }
+
+    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String deletePost(int postId) {
+        postService.deletePost(postId);
+
+        return BlogUtil.getJSONString(0, "微博删除成功");
     }
 
 }

@@ -9,7 +9,7 @@
 <body>
 
 <!-- 导航栏 -->
-<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top" th:replace="index::header">
     <a th:href="@{/index}" class="navbar-brand">Mini Blog</a>
     <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
@@ -46,9 +46,13 @@
         <img th:src="${user.headerUrl}" alt="" class="rounded mx-auto d-block img-thumbnail">
         <h2 class="card-title text-center" th:utext="${user.username}">username</h2>
         <h6 class="card-subtitle mb-2 text-muted text-center">
-            <span>关注：<a href="#">10</a></span> |
-            <span>粉丝：<a href="#">10</a></span> |
-            <a href="#">自己</a>
+            <span>关注：<a th:href="@{|/followee/${user.id}/3|}" th:utext="${followeeCount}">10</a></span> |
+            <span>粉丝：<a th:href="@{|/follower/3/${user.id}|}" th:utext="${followerCount}">10</a></span>
+            <span th:if="${loginUser!=null}">|</span>
+            <input type="hidden" id="userId" th:value="${user.id}">
+            <button type="button" th:class="|btn ${isFollow?'btn-outline-primary':'btn-primary'} btn-sm|"
+                    id="followBtn" th:utext="${isFollow?'已关注':'关注'}" th:if="${loginUser!=null&&loginUser.id!=user.id}">关注</button>
+            <span th:if="${loginUser!=null&&loginUser.id==user.id}">自己</span>
         </h6>
     </div>
 
@@ -70,16 +74,14 @@
                 </div>
                 <br>
                 <p class="card-text" th:utext="${post.content}">今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！今天天气正好啊。嘿嘿！</p>
-                <button type="button" class="btn btn-outline-secondary btn-sm">点赞</button>
-                <button type="button" class="btn btn-outline-secondary btn-sm">评论</button>
-                <button type="button" class="btn btn-outline-secondary btn-sm">删除</button>
+                <a th:href="@{|/post/detail/${post.id}|}" class="btn btn-outline-secondary btn-sm">查看详情</a>
             </div>
         </div>
     </div>
     <br>
 
     <!-- 分页 -->
-    <nav aria-label="Page navigation">
+    <nav aria-label="Page navigation" th:replace="index::page">
         <ul class="pagination justify-content-center">
             <li th:class="|page-item ${page.current==1?'disabled':''}"><a class="page-link" th:href="@{${page.path}(current=${page.current-1})}">上一页</a></li>
             <li th:class="|page-item ${i==page.current?'active':''}|" th:each="i:${#numbers.sequence(page.from,page.to)}">
@@ -88,6 +90,9 @@
             <li th:class="|page-item ${page.current==page.total?'disabled':''}|"><a class="page-link" th:href="@{${page.path}(current=${page.current+1})}">下一页</a></li>
         </ul>
     </nav>
+
+    <br>
+    <br>
     <br>
     <br>
     <br>
@@ -105,5 +110,7 @@
 
 <script th:src="@{/js/jquery.min.js}"></script>
 <script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/profile.js}"></script>
+<script th:src="@{/js/global.js}"></script>
 </body>
 </html>

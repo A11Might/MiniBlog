@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh_CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>关注页面</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+</head>
+<body>
+
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top" th:replace="index::header">
+    <a href="#" class="navbar-brand">Mini Blog</a>
+    <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mr-auto">
+            <div class="navbar-nav">
+                <a href="#" class="nav-item nav-link active">首页</a>
+                <a href="#" class="nav-item nav-link">消息<span class="badge badge-pill badge-danger">99+</span></a>
+                <a href="#" class="nav-item nav-link">注册</a>
+                <a href="#" class="nav-item nav-link">登录</a>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">username</a>
+                    <div class="dropdown-menu">
+                        <a href="#" class="dropdown-item">个人信息</a>
+                        <a href="#" class="dropdown-item">退出登录</a>
+                    </div>
+                </li>
+            </div>
+        </ul>
+        <form action="" class="form-inline my-2 my-md-0">
+            <input type="text" class="form-control mr-sm-2" placeholder="请输入关键字">
+            <button class="btn btn-outline-success my-2 my-md-0">搜索</button>
+        </form>
+    </div>
+</nav>
+
+<!-- 页面主体 -->
+<div class="container"><br>
+    <!-- 用户信息 -->
+    <div class="card">
+        <div class="card-body">
+            <div class="media pb-3 border-bottom">
+                <a th:href="@{|/user/profile/${user.id}|}">
+                    <img th:src="${user.headerUrl}" class="align-self-start mr-4 rounded-circle user-header" alt="用户头像" style="width:65px;height:65px;">
+                </a>
+                <div class="media-body">
+                    <h5 class="card-title" th:utext="${user.username}">username</h5>
+                    <div class="text-muted mt-3">
+                        创建于 <b th:text="${#dates.format(user.createTime, 'yyyy-MM-dd HH:mm:ss')}">2019-04-15 15:32:18</b>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <p class="card-text">关注页面</p>
+
+        </div>
+    </div>
+    <br>
+
+    <!-- 关注列表 -->
+    <div class="row">
+        <div class="col-sm-3" th:each="followeeVO:${followeeVOList}">
+            <div class="card">
+                <a th:href="@{|/user/profile/${followeeVO.followee.id}|}">
+                    <img class="card-img-top" th:src="${followeeVO.followee.headerUrl}" alt="Card image cap">
+                </a>
+                <div class="card-body">
+                    <h5 class="card-title" th:utext="${followeeVO.followee.username}">username</h5>
+                    <p class="card-text">关注于<b th:text="${#dates.format(followeeVO.followTime, 'yyyy-MM-dd HH:mm:ss')}">create time</b></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分页 -->
+    <nav aria-label="Page navigation" th:replace="index::page">
+        <ul class="pagination justify-content-center">
+            <li class="page-item disabled"><a class="page-link" href="#">上一页</a></li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item active"><a class="page-link" href="#">3</a></li>
+            <li class="page-item"><a class="page-link" href="#">4</a></li>
+            <li class="page-item"><a class="page-link" href="#">5</a></li>
+            <li class="page-item"><a class="page-link" href="#">下一页</a></li>
+        </ul>
+    </nav>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+</div>
+
+<!-- 页脚 -->
+<nav class="navbar navbar-dark bg-dark justify-content-between fixed-bottom" th:replace="index::footer">
+    <span class="navbar-text">
+        Best wishes to you !
+    </span>
+    <span class="navbar-text">
+        &copy; 2020 QiHang Hu <a href="https://github.com/A11Might/MiniBlog" title="主页">GitHub</a> - <a href="http://www.beian.miit.gov.cn/" title="信息产业部备案管理系统网址" target="_blank">陕ICP备19025889号</a>
+    </span>
+</nav>
+
+<script th:src="@{/js/jquery.min.js}"></script>
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/global.js}"></script>
+</body>
+</html>
