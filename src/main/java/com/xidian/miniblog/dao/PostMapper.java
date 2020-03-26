@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author qhhu
@@ -15,11 +16,16 @@ public interface PostMapper {
 
     Post selectPostById(int postId);
 
-    List<Post> selectPosts(int userId, int offset, int limit);
+    List<Post> selectPostsByUserId(int userId, int offset, int limit);
 
-    // @Param注解用于给参数取别名
-    // 如果只有一个参数并且在<if>里使用，则必须加别名
-    int selectPostRows(@Param("userId") int userId);
+    // @Param注解用于给参数取别名，若方法中只有一个参数并且需要使用 <if> 或者 <foreach>，则必须加别名。
+    int selectPostRowsByUserId(@Param("userId") int userId);
+
+    List<Post> selectPostsByUserIds(List<Integer> userIds, int offset, int limit);
+
+    int selectPostRowsByUserIds(@Param("userIds") List<Integer> userIds);
+
+    int selecttest(Set<Integer> userIds);
 
     int insertPost(Post post);
 

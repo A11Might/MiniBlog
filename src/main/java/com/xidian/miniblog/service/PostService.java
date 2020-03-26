@@ -23,12 +23,20 @@ public class PostService implements BlogConstant {
         return postMapper.selectPostById(postId);
     }
 
-    public List<Post> getPosts(int userId, int offset, int limit) {
-        return postMapper.selectPosts(userId, offset, limit);
+    public List<Post> getPostsByUserId(int userId, int offset, int limit) {
+        return postMapper.selectPostsByUserId(userId, offset, limit);
     }
 
-    public int getPostRows(int userId) {
-        return postMapper.selectPostRows(userId);
+    public int getPostRowsByUserId(int userId) {
+        return postMapper.selectPostRowsByUserId(userId);
+    }
+
+    public List<Post> getPostsByUserIds(List<Integer> userIds, int offset, int limit) {
+        return postMapper.selectPostsByUserIds(userIds, offset, limit);
+    }
+
+    public int getPostsRowsByUserIds(List<Integer> userIds) {
+        return postMapper.selectPostRowsByUserIds(userIds);
     }
 
     public int addPost(Post post) {

@@ -9,8 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author qhhu
@@ -40,7 +39,7 @@ public class PostMapperTests {
     @Test
     public void selectTest() {
         Post post = postMapper.selectPostById(282);
-        List<Post> list = postMapper.selectPosts(0, 0, 10);
+        List<Post> list = postMapper.selectPostsByUserId(0, 0, 10);
         System.out.println(post);
         for (Post p : list) {
             System.out.println(p);
@@ -49,8 +48,8 @@ public class PostMapperTests {
 
     @Test
     public void selectRows() {
-        System.out.println(postMapper.selectPostRows(0));
-        System.out.println(postMapper.selectPostRows(155));
+        System.out.println(postMapper.selectPostRowsByUserId(0));
+        System.out.println(postMapper.selectPostRowsByUserId(155));
     }
 
     @Test
@@ -59,5 +58,21 @@ public class PostMapperTests {
         postMapper.updateCommentCount(282, 100);
         postMapper.updateScore(282, 10.0);
         System.out.println(postMapper.selectPostById(282));
+    }
+
+    @Test
+    public void selectTest1() {
+        List<Integer> list = new ArrayList<>();
+        list.add(155);
+        list.add(144);
+        for (Post post : postMapper.selectPostsByUserIds(list, 0, 100)) {
+            System.out.println(post);
+        }
+        System.out.println(postMapper.selectPostRowsByUserIds(list));
+    }
+
+    @Test
+    public void selectTest2() {
+        Set<Integer> list = new HashSet<>();
     }
 }

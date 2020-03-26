@@ -46,14 +46,14 @@ public class UserController implements BlogConstant {
     public String getUserProfilePage(Model model,
                                      @PathVariable("userId") int userId,
                                      Page page) {
-        page.setRows(postService.getPostRows(userId));
+        page.setRows(postService.getPostRowsByUserId(userId));
         page.setPath("/user/profile/" + userId);
 
         User loginUser = hostHolder.getUser();
         User user = userService.getUserById(userId);
         model.addAttribute("user", user);
 
-        List<Post> postList = postService.getPosts(user.getId(), page.getOffset(), page.getLimit());
+        List<Post> postList = postService.getPostsByUserId(user.getId(), page.getOffset(), page.getLimit());
         model.addAttribute("postList", postList);
 
         int followerCount = (int) followService.getEntityFollowerCount(BlogConstant.ENTITY_TYPE_USER, userId);

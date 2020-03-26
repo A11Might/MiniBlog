@@ -11,116 +11,64 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author qhhu
- * @date 2020/3/11 - 16:40
+ * @date 2020/3/25 - 14:03
  */
 @Controller
-public class IndexController implements BlogConstant {
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private PostService postService;
-
-    @Autowired
-    private CommentService commentService;
+public class FeedController implements BlogConstant {
 
     @Autowired
     private HostHolder hostHolder;
 
     @Autowired
+    private FeedService feedService;
+
+    @Autowired
+    private PostService postService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
     private LikeService likeService;
+
+    @Autowired
+    private CommentService commentService;
 
     @Autowired
     private MessageService messageService;
 
     @Autowired
-    private FollowService followService;
-
-    @Autowired
     private RedisTemplate redisTemplate;
 
-    @RequestMapping(path = "/", method = RequestMethod.GET)
-    public String root() {
-        return "forward:/index";
-    }
-
-    @RequestMapping(path = "/index", method = RequestMethod.GET)
-    public String getIndexPage(Model model, Page page) {
-        User loginUser = hostHolder.getUser();
-
-        page.setRows(postService.getPostRowsByUserId(0));
-        page.setPath("/index");
-
-        List<Post> postList = postService.getPostsByUserId(0, page.getOffset(), page.getLimit());
-        model.addAttribute("postVOList", getPostVOListByPostList(postList));
-
-        model.addAttribute("totalNoticeUnreadCount", getTotalNoticeUnreadCount());
-
-        return "/index";
-    }
-
-    @RequestMapping(path = "/timelinebypush", method = RequestMethod.GET)
-    public String getTimelineByPush(Model model, Page page) {
+    @RequestMapping(path = "/feedsbypush", method = RequestMethod.GET)
+    public String getFeedsByPush(Model model, Page page) {
         User loginUser = hostHolder.getUser();
 
         String timelineKey = RedisKeyUtil.getTimeLineKey(loginUser.getId());
         Long size = redisTemplate.opsForList().size(timelineKey);
-        page.setPath("/timeline");
+        page.setPath("/feedsbypush");
         page.setRows(size.intValue());
 
-        List<Integer> postIds = redisTemplate.opsForList().range(timelineKey, page.getOffset(), page.getOffset() + page.getLimit() - 1);
+        List<Integer> feedIds = redisTemplate.opsForList().range(timelineKey, page.getOffset(), page.getOffset() + page.getLimit() - 1);
 
         List<Post> postList = new ArrayList<>();
-        if (postIds == null || postIds.size() != 0) {
-            for (int postId : postIds) {
-                Post post = postService.getPostById(postId);
+        if (feedIds == null || feedIds.size() != 0) {
+            for (int feedId : feedIds) {
+                Feed feed = feedService.getFeedById(feedId);
+                Post post = postService.getPostById(Integer.parseInt(feed.getData()));
                 if (post != null) {
                     postList.add(post);
                 }
             }
         }
-        model.addAttribute("postVOList", getPostVOListByPostList(postList));
 
-        model.addAttribute("totalNoticeUnreadCount", getTotalNoticeUnreadCount());
-
-        return "/index";
-    }
-
-    @RequestMapping(path = "/timelinebypull", method = RequestMethod.GET)
-    public String getTimelineByPull(Model model, Page page) {
-        User loginUser = hostHolder.getUser();
-        List<Integer> followeeUserIds = setToList(followService.getUserFolloweeIds(loginUser.getId(), ENTITY_TYPE_USER));
-
-        int rows = postService.getPostsRowsByUserIds(followeeUserIds);
-
-        page.setPath("/timelinebypull");
-        page.setRows(rows);
-
-        List<Post> postList = postService.getPostsByUserIds(followeeUserIds, page.getOffset(), page.getLimit());
-        model.addAttribute("postVOList", getPostVOListByPostList(postList));
-
-        model.addAttribute("totalNoticeUnreadCount", getTotalNoticeUnreadCount());
-
-        return "/index";
-    }
-
-    private List<Integer> setToList(Set<Integer> set) {
-        List<Integer> followeeUserIds = new ArrayList<>();
-
-        for (Integer followeeUserId : set) {
-            followeeUserIds.add(followeeUserId);
-        }
-
-        return followeeUserIds;
-    }
-
-    private List<Map<String, Object>> getPostVOListByPostList(List<Post> postList) {
-        User loginUser = hostHolder.getUser();
         List<Map<String, Object>> postVOList = new ArrayList<>();
         int level = 1;
         for (Post post : postList) {
@@ -153,17 +101,13 @@ public class IndexController implements BlogConstant {
             postVO.put("likeStatus", postLikeStatus);
             postVOList.add(postVO);
         }
-
-        return postVOList;
-    }
-
-    private int getTotalNoticeUnreadCount() {
-        User loginUser = hostHolder.getUser();
+        model.addAttribute("postVOList", postVOList);
 
         if (loginUser != null) {
-            return messageService.getNoticeUnreadCount(loginUser.getId(), null);
+            int totalNoticeUnreadCount = messageService.getNoticeUnreadCount(loginUser.getId(), null);
+            model.addAttribute("totalNoticeUnreadCount", totalNoticeUnreadCount);
         }
-        return 0;
-    }
 
+        return "/index";
+    }
 }

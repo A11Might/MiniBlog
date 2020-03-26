@@ -67,6 +67,11 @@ public interface BlogConstant {
     int EVENT_TYPE_FOLLOW = 3;
 
     /**
+     * 事件类型：发布新鲜事
+     */
+    int EVENT_TYPE_PUBLISH = 4;
+
+    /**
      * 用户：系统
      */
     int SYSTEM_USER = 1;

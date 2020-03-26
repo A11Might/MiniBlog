@@ -50,14 +50,14 @@ public class MessageMapperTests {
 
     @Test
     public void selectTest() {
-//        System.out.println(messageMapper.selectLatestNotice(155, "1_155"));
-//        System.out.println(messageMapper.selectNoticeCount(155, "1_155"));
+        System.out.println(messageMapper.selectLatestNotice(155, "1_155"));
+        System.out.println(messageMapper.selectNoticeCount(155, "1_155"));
         System.out.println(messageMapper.selectNoticeUnreadCount(155, "1_155"));
         System.out.println(messageMapper.selectNoticeUnreadCount(155, null));
-//        List<Message> messages = messageMapper.selectNotices(155, "1_155", 0, 10);
-//        for (Message message : messages) {
-//            System.out.println(message);
-//        }
+        List<Message> messages = messageMapper.selectNotices(155, "1_155", 0, 10);
+        for (Message message : messages) {
+            System.out.println(message);
+        }
     }
 
 }

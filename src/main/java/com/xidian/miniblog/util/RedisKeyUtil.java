@@ -13,6 +13,7 @@ public class RedisKeyUtil {
     private static final String FOLLOWER = "follower";
     private static final String FOLLOWEE = "followee";
     private static final String EVENT_QUEUE = "event";
+    private static final String TIMELINE = "timeline";
 
     private RedisKeyUtil() {}
 
@@ -71,6 +72,16 @@ public class RedisKeyUtil {
 
     public static String getEventQueueKey() {
         return EVENT_QUEUE;
+    }
+
+    /**
+     * 使用 list 类型存储该用户所有关注的用户的发布帖子的 id，key 为该用户的 id。
+     *
+     * @param userId
+     * @return
+     */
+    public static String getTimeLineKey(int userId) {
+        return TIMELINE + SPLIT + userId;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.xidian.miniblog.controller;
 
+import com.xidian.miniblog.async.EventProducer;
 import com.xidian.miniblog.entity.*;
 import com.xidian.miniblog.service.CommentService;
 import com.xidian.miniblog.service.LikeService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 
@@ -41,12 +43,15 @@ public class PostController implements BlogConstant {
     @Autowired
     private LikeService likeService;
 
+    @Autowired
+    private EventProducer eventProducer;
+
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     @ResponseBody
     public String addPost(String content) {
-        User user = hostHolder.getUser();
+        User loginUser = hostHolder.getUser();
 
-        if (user == null) {
+        if (loginUser == null) {
             // 403 代表没有权限
             return BlogUtil.getJSONString(403, "当前未登录");
         }
@@ -56,10 +61,17 @@ public class PostController implements BlogConstant {
         }
 
         Post post = new Post();
-        post.setUserId(user.getId());
-        post.setContent(content);
+        post.setUserId(loginUser.getId());
+        post.setContent(HtmlUtils.htmlEscape(content));
         post.setCreateTime(new Date());
         postService.addPost(post);
+
+        Event event = new Event()
+                .setType(EVENT_TYPE_PUBLISH)
+                .setActorId(loginUser.getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(post.getId());
+        eventProducer.fireEvent(event);
 
         return BlogUtil.getJSONString(0, "新鲜事 +1");
     }

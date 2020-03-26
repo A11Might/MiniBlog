@@ -100,6 +100,18 @@ public class FollowService implements BlogConstant {
         return redisTemplate.opsForZSet().score(followerKey, userId) != null;
     }
 
+    public Set<Integer> getUserFolloweeIds(int userId, int entityType) {
+        String followeeKey = RedisKeyUtil.getUserFolloweeKey(userId, entityType);
+        Set<Integer> followeeIds = redisTemplate.opsForZSet().reverseRange(followeeKey, 0, -1);
+        return followeeIds;
+    }
+
+    public Set<Integer> getEntityFollowerIds(int entityType, int entityId) {
+        String followerKey = RedisKeyUtil.getEntityFollowerKey(entityType, entityId);
+        Set<Integer> followerIds = redisTemplate.opsForZSet().reverseRange(followerKey, 0, -1);
+        return followerIds;
+    }
+
     public List<Map<String, Object>> getUserFolloweeList(int userId, int entityType, int offset, int limit) {
         String followeeKey = RedisKeyUtil.getUserFolloweeKey(userId, entityType);
         Set<Integer> followeeIds = redisTemplate.opsForZSet().reverseRange(followeeKey, offset, offset + limit - 1);
