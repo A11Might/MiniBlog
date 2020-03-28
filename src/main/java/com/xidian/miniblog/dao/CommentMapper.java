@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper
 public interface CommentMapper {
 
-    Comment selectCommentById(int commentId);
+    Comment selectCommentById(int id);
 
     List<Comment> selectCommentsByEntity(int entityType, int entityId, int offset, int limit);
 
@@ -20,6 +20,6 @@ public interface CommentMapper {
 
     int insertComment(Comment comment);
 
-    int updateCommentStatus(int commentId, int status);
+    int updateCommentStatus(int id, int status);
 
 }

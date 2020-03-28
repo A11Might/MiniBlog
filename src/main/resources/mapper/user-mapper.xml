@@ -12,25 +12,25 @@
         username, password, salt, email, status, activation_code, header_url, create_time
     </sql>
 
-    <select id="selectUserById" resultType="User">
+    <select id="selectUserById" resultType="com.xidian.miniblog.entity.User">
         select <include refid="selectFields"></include>
         from user
         where id = #{id}
     </select>
 
-    <select id="selectUserByUsername" resultType="User">
+    <select id="selectUserByUsername" resultType="com.xidian.miniblog.entity.User">
         select <include refid="selectFields"></include>
         from user
         where username = #{username}
     </select>
 
-    <select id="selectUserByEmail" resultType="User">
+    <select id="selectUserByEmail" resultType="com.xidian.miniblog.entity.User">
         select <include refid="selectFields"></include>
         from user
         where email = #{email}
     </select>
 
-    <insert id="insertUser" parameterType="User" keyProperty="id">
+    <insert id="insertUser" parameterType="com.xidian.miniblog.entity.User" keyProperty="id">
         insert into user (<include refid="insertFields"></include>)
         values(#{username},#{password},#{salt},#{email},#{status},#{activationCode},#{headerUrl},#{createTime})
     </insert>

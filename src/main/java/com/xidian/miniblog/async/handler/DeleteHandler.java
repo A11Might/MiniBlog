@@ -5,8 +5,6 @@ import com.xidian.miniblog.entity.Event;
 import com.xidian.miniblog.service.FollowService;
 import com.xidian.miniblog.util.BlogConstant;
 import com.xidian.miniblog.util.RedisKeyUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
@@ -17,12 +15,10 @@ import java.util.Set;
 
 /**
  * @author qhhu
- * @date 2020/3/25 - 14:09
+ * @date 2020/3/28 - 11:30
  */
 @Component
-public class PublishHandler implements EventHandler, BlogConstant {
-
-    private static final Logger logger = LoggerFactory.getLogger(PublishHandler.class);
+public class DeleteHandler implements EventHandler, BlogConstant {
 
     @Autowired
     private FollowService followService;
@@ -32,15 +28,15 @@ public class PublishHandler implements EventHandler, BlogConstant {
 
     @Override
     public void doHandler(Event event) {
-        Set<Integer> followerUserIds = followService.getEntityFollowerIds(BlogConstant.ENTITY_TYPE_USER, event.getActorId(), 0, -1);
-        for (int followerUserId : followerUserIds) {
+        Set<Integer> followerIds = followService.getEntityFollowerIds(BlogConstant.ENTITY_TYPE_USER, event.getActorId(), 0, -1);
+        for (int followerUserId : followerIds) {
             String timelineKey = RedisKeyUtil.getTimeLineKey(followerUserId);
-            redisTemplate.opsForList().leftPush(timelineKey, event.getEntityId());
+            redisTemplate.opsForList().remove(timelineKey, 0, event.getEntityId());
         }
     }
 
     @Override
     public List<Integer> getSupportEventTypes() {
-        return Arrays.asList(EVENT_TYPE_PUBLISH);
+        return Arrays.asList(EVENT_TYPE_DELETE);
     }
 }

@@ -30,12 +30,12 @@ public class LoginController implements BlogConstant {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
-    @RequestMapping(path = "/register", method = RequestMethod.GET)
+    @GetMapping("/register")
     public String getRegisterPage() {
         return "/site/register";
     }
 
-    @RequestMapping(path = "/register", method = RequestMethod.POST)
+    @PostMapping("/register")
     public String register(Model model, User user) {
         Map<String, Object> map = userService.register(user);
         if (map == null || map.isEmpty()) {
@@ -48,7 +48,7 @@ public class LoginController implements BlogConstant {
         }
     }
 
-    @RequestMapping(path = "/activation/{userId}/{activationCode}", method = RequestMethod.GET)
+    @GetMapping("/activation/{userId}/{activationCode}")
     public String activationAccount(Model model,
                                     @PathVariable("userId") int userId,
                                     @PathVariable("activationCode") String activationCode) {
@@ -57,30 +57,27 @@ public class LoginController implements BlogConstant {
             model.addAttribute("msg", "账号激活成功，您可以正常使用");
             model.addAttribute("target", "/login");
         } else if (activateResult == ACTIVATION_REPEAT) {
-            model.addAttribute("msg", "该账号已激活");
-            model.addAttribute("target", "/index");
+            model.addAttribute("msg", "该账号已激活，请勿重复操作");
+            model.addAttribute("target", "/login");
         } else {
             model.addAttribute("msg", "账号激活失败，该激活码无效");
-            model.addAttribute("target", "index");
+            model.addAttribute("target", "/index");
         }
         return "/site/operate-result";
     }
 
 
-    @RequestMapping(path = "/login", method = RequestMethod.GET)
+    @GetMapping("/login")
     public String getLoginPage() {
         return "/site/login";
     }
 
-    @RequestMapping(path = "/login", method = RequestMethod.POST)
+    @PostMapping("/login")
     public String login(Model model, User user, boolean remember, HttpServletResponse response) {
-        int expiredSeconds = remember ? REMEMBER_EXPIRED_SECONDS : DEFAULT_EXPIRED_SECONDS;
-        // 真是干了，我把过期时间设为了 0，导致登录凭证一直无效，我还说怎么拦截器拦截到了，咋没用户信息呢。
-        Map<String, Object> map = userService.login(user, expiredSeconds);
-
+        Map<String, Object> map = userService.login(user, remember);
         if (map.containsKey("ticket")) {
             Cookie cookie = new Cookie("ticket", map.get("ticket").toString());
-            cookie.setMaxAge(expiredSeconds);
+            cookie.setMaxAge((remember ? REMEMBER_EXPIRED_DAYS : DEFAULT_EXPIRED_DAYS) * 3600 * 24);
             cookie.setPath(contextPath);
             response.addCookie(cookie);
             return "redirect:/index";
@@ -91,10 +88,10 @@ public class LoginController implements BlogConstant {
         }
     }
 
-    @RequestMapping(path = "/logout", method = RequestMethod.GET)
+    @GetMapping("/logout")
     public String logout(@CookieValue("ticket") String ticket) {
         userService.logout(ticket);
-        return "redirect:/login";
+        return "/site/login";
     }
 
 }

@@ -15,19 +15,19 @@
     <update id="updateCommentCount">
         update post
         set comment_count = #{commentCount}
-        where id = #{postId}
+        where id = #{id}
     </update>
 
     <update id="updateStatus">
         update post
         set status = #{status}
-        where id = #{postId}
+        where id = #{id}
     </update>
 
     <update id="updateScore">
         update post
         set score = #{score}
-        where id = #{postId}
+        where id = #{id}
     </update>
 
     <select id="selectPostById" resultType="com.xidian.miniblog.entity.Post">
@@ -70,16 +70,6 @@
     </select>
 
     <select id="selectPostRowsByUserIds" resultType="java.lang.Integer">
-        select count(id)
-        from post
-        where status != 1
-        and user_id in
-        <foreach collection="userIds" item="userId" open="(" separator="," close=")">
-            #{userId}
-        </foreach>
-    </select>
-
-    <select id="selecttest" resultType="java.lang.Integer">
         select count(id)
         from post
         where status != 1

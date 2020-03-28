@@ -40,7 +40,7 @@ public class CommentService implements BlogConstant {
     @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRED)
     public int addComment(Comment comment) {
         if (comment == null) {
-            throw new IllegalArgumentException("参数不能为空");
+            throw new IllegalArgumentException("参数为空");
         }
 
         // 添加评论

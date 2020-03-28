@@ -61,7 +61,7 @@ public class PostMapperTests {
     }
 
     @Test
-    public void selectTest1() {
+    public void selectTests() {
         List<Integer> list = new ArrayList<>();
         list.add(155);
         list.add(144);
@@ -69,10 +69,5 @@ public class PostMapperTests {
             System.out.println(post);
         }
         System.out.println(postMapper.selectPostRowsByUserIds(list));
-    }
-
-    @Test
-    public void selectTest2() {
-        Set<Integer> list = new HashSet<>();
     }
 }

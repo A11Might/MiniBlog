@@ -1,5 +1,6 @@
 package com.xidian.miniblog.controller;
 
+import com.xidian.miniblog.annotation.LoginRequired;
 import com.xidian.miniblog.entity.*;
 import com.xidian.miniblog.service.*;
 import com.xidian.miniblog.util.BlogConstant;
@@ -8,8 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.*;
 
@@ -44,15 +44,13 @@ public class IndexController implements BlogConstant {
     @Autowired
     private RedisTemplate redisTemplate;
 
-    @RequestMapping(path = "/", method = RequestMethod.GET)
+    @GetMapping("/")
     public String root() {
-        return "forward:/index";
+        return "redirect:/index";
     }
 
-    @RequestMapping(path = "/index", method = RequestMethod.GET)
+    @GetMapping("/index")
     public String getIndexPage(Model model, Page page) {
-        User loginUser = hostHolder.getUser();
-
         page.setRows(postService.getPostRowsByUserId(0));
         page.setPath("/index");
 
@@ -64,21 +62,28 @@ public class IndexController implements BlogConstant {
         return "/index";
     }
 
-    @RequestMapping(path = "/timelinebypush", method = RequestMethod.GET)
+    @GetMapping("/error")
+    public String getErrorPage() {
+        return "/error/500";
+    }
+
+    @LoginRequired
+    @GetMapping(path = "/timelinebypush")
     public String getTimelineByPush(Model model, Page page) {
         User loginUser = hostHolder.getUser();
 
         String timelineKey = RedisKeyUtil.getTimeLineKey(loginUser.getId());
         Long size = redisTemplate.opsForList().size(timelineKey);
-        page.setPath("/timeline");
+        page.setPath("/timelinebypush");
         page.setRows(size.intValue());
 
         List<Integer> postIds = redisTemplate.opsForList().range(timelineKey, page.getOffset(), page.getOffset() + page.getLimit() - 1);
-
         List<Post> postList = new ArrayList<>();
         if (postIds == null || postIds.size() != 0) {
             for (int postId : postIds) {
                 Post post = postService.getPostById(postId);
+                // 用户删除帖子后会异步删除用户所有粉丝 timeline 中该帖子的 id。
+                // 所以可能帖子已经删除了但 timeline 中的帖子 id还在，需要判断。
                 if (post != null) {
                     postList.add(post);
                 }
@@ -91,17 +96,21 @@ public class IndexController implements BlogConstant {
         return "/index";
     }
 
-    @RequestMapping(path = "/timelinebypull", method = RequestMethod.GET)
+    @LoginRequired
+    @GetMapping(path = "/timelinebypull")
     public String getTimelineByPull(Model model, Page page) {
         User loginUser = hostHolder.getUser();
-        List<Integer> followeeUserIds = setToList(followService.getUserFolloweeIds(loginUser.getId(), ENTITY_TYPE_USER));
+        List<Integer> followeeIds = setToList(followService.getUserFolloweeIds(loginUser.getId(), ENTITY_TYPE_USER, 0, -1));
+        // 若没有关注其他用户，则直接返回。
+        if (followeeIds == null || followeeIds.size() == 0) {
+            return "/index";
+        }
 
-        int rows = postService.getPostsRowsByUserIds(followeeUserIds);
-
+        int rows = postService.getPostsRowsByUserIds(followeeIds);
         page.setPath("/timelinebypull");
         page.setRows(rows);
 
-        List<Post> postList = postService.getPostsByUserIds(followeeUserIds, page.getOffset(), page.getLimit());
+        List<Post> postList = postService.getPostsByUserIds(followeeIds, page.getOffset(), page.getLimit());
         model.addAttribute("postVOList", getPostVOListByPostList(postList));
 
         model.addAttribute("totalNoticeUnreadCount", getTotalNoticeUnreadCount());
@@ -121,20 +130,27 @@ public class IndexController implements BlogConstant {
 
     private List<Map<String, Object>> getPostVOListByPostList(List<Post> postList) {
         User loginUser = hostHolder.getUser();
+
         List<Map<String, Object>> postVOList = new ArrayList<>();
+        // 每个帖子都有一个评论框，使用 level 标记每个帖子中的评论框（id = commentContent + level）。
         int level = 1;
         for (Post post : postList) {
             Map<String, Object> postVO = new HashMap<>();
+
             User author = userService.getUserById(post.getUserId());
+
             List<Comment> commentList =  commentService.getCommentsByEntity(ENTITY_TYPE_POST, post.getId(), 0, 3);
             List<Map<String, Object>> commentVOList = null;
             if (commentList != null) {
                 commentVOList = new ArrayList<>();
                 for (Comment comment : commentList) {
                     Map<String, Object> commentVO = new HashMap<>();
+
                     User commentUser = userService.getUserById(comment.getUserId());
+
                     long commentLikeCount = likeService.getEntityLikeCount(ENTITY_TYPE_COMMENT, comment.getId());
                     boolean commentLikeStatus = loginUser == null ? false : likeService.getLikeStatus(loginUser.getId(), ENTITY_TYPE_COMMENT, comment.getId());
+
                     commentVO.put("commentUser", commentUser);
                     commentVO.put("comment", comment);
                     commentVO.put("likeCount", commentLikeCount);
@@ -142,9 +158,11 @@ public class IndexController implements BlogConstant {
                     commentVOList.add(commentVO);
                 }
             }
+
             long postLikeCount = likeService.getEntityLikeCount(ENTITY_TYPE_POST, post.getId());
             // 这里可能未登录，需要判断。
             boolean postLikeStatus = loginUser == null ? false : likeService.getLikeStatus(loginUser.getId(), ENTITY_TYPE_POST, post.getId());
+
             postVO.put("author", author);
             postVO.put("post", post);
             postVO.put("level", level++);

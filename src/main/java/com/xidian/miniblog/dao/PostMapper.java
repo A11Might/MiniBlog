@@ -5,7 +5,6 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author qhhu
@@ -14,25 +13,29 @@ import java.util.Set;
 @Mapper
 public interface PostMapper {
 
-    Post selectPostById(int postId);
+    Post selectPostById(int id);
 
+    /**
+     * 当 userId == 0 时，查询所有帖子；当 userId ！= 0 时，查询 user_id = userId 的帖子。
+     */
     List<Post> selectPostsByUserId(int userId, int offset, int limit);
 
-    // @Param注解用于给参数取别名，若方法中只有一个参数并且需要使用 <if> 或者 <foreach>，则必须加别名。
+    /**
+     * 当 userId == 0 时，查询所有帖子数量；当 userId ！= 0 时，查询 user_id = userId 的帖子数量。
+     * @Param 注解用于给参数取别名，若方法中只有一个参数并且需要使用 <if> 或者 <foreach>，则必须加别名。
+     */
     int selectPostRowsByUserId(@Param("userId") int userId);
 
     List<Post> selectPostsByUserIds(List<Integer> userIds, int offset, int limit);
 
     int selectPostRowsByUserIds(@Param("userIds") List<Integer> userIds);
 
-    int selecttest(Set<Integer> userIds);
-
     int insertPost(Post post);
 
-    int updateCommentCount(int postId, int commentCount);
+    int updateCommentCount(int id, int commentCount);
 
-    int updateStatus(int postId, int status);
+    int updateStatus(int id, int status);
 
-    int updateScore(int postId, double score);
+    int updateScore(int id, double score);
 
 }

@@ -9,8 +9,7 @@ import com.xidian.miniblog.util.BlogConstant;
 import com.xidian.miniblog.util.BlogUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
@@ -32,7 +31,7 @@ public class LikeController implements BlogConstant {
     @Autowired
     private EventProducer eventProducer;
 
-    @RequestMapping(path = "/like", method = RequestMethod.POST)
+    @PostMapping("/like")
     @ResponseBody
     public String like(int entityType, int entityId, int entityOwnerId, int postId) {
         User loginUser = hostHolder.getUser();
@@ -40,7 +39,9 @@ public class LikeController implements BlogConstant {
         if (loginUser == null) {
             return BlogUtil.getJSONString(1, "当前未登录");
         }
+
         likeService.like(loginUser.getId(), entityType, entityId, entityOwnerId);
+
         long likeCount = likeService.getEntityLikeCount(entityType, entityId);
         boolean likeStatus = likeService.getLikeStatus(loginUser.getId(), entityType, entityId);
 
@@ -48,8 +49,8 @@ public class LikeController implements BlogConstant {
         map.put("likeCount", likeCount);
         map.put("likeStatus", likeStatus);
 
-        // 点赞才发送站内信（取消点赞不发送）
-        if (likeStatus) {
+        // 通知帖子作者
+        if (likeStatus && loginUser.getId() != entityOwnerId) {
             Event event = new Event()
                     .setType(EVENT_TYPE_LIKE)
                     .setActorId(loginUser.getId())

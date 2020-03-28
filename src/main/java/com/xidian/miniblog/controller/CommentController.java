@@ -1,10 +1,7 @@
 package com.xidian.miniblog.controller;
 
 import com.xidian.miniblog.async.EventProducer;
-import com.xidian.miniblog.entity.Comment;
-import com.xidian.miniblog.entity.Event;
-import com.xidian.miniblog.entity.HostHolder;
-import com.xidian.miniblog.entity.User;
+import com.xidian.miniblog.entity.*;
 import com.xidian.miniblog.service.CommentService;
 import com.xidian.miniblog.service.PostService;
 import com.xidian.miniblog.util.BlogConstant;
@@ -12,9 +9,7 @@ import com.xidian.miniblog.util.BlogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 
@@ -38,7 +33,7 @@ public class CommentController implements BlogConstant {
     @Autowired
     private EventProducer eventProducer;
 
-    @RequestMapping(path = "/add", method = RequestMethod.POST)
+    @PostMapping("/add")
     @ResponseBody
     public String addComment(String content, int postId) {
         User loginUser = hostHolder.getUser();
@@ -61,18 +56,22 @@ public class CommentController implements BlogConstant {
         comment.setCreateTime(new Date());
         commentService.addComment(comment);
 
-        Event event = new Event()
-                .setType(EVENT_TYPE_COMMENT)
-                .setActorId(loginUser.getId())
-                .setEntityType(ENTITY_TYPE_POST)
-                .setEntityId(postId)
-                .setEntityOwnerId(postService.getPostById(postId).getUserId());
-        eventProducer.fireEvent(event);
+        // 通知帖子作者
+        Post post = postService.getPostById(postId);
+        if (post.getUserId() != loginUser.getId()) {
+            Event event = new Event()
+                    .setType(EVENT_TYPE_COMMENT)
+                    .setActorId(loginUser.getId())
+                    .setEntityType(ENTITY_TYPE_POST)
+                    .setEntityId(postId)
+                    .setEntityOwnerId(postService.getPostById(postId).getUserId());
+            eventProducer.fireEvent(event);
+        }
 
         return BlogUtil.getJSONString(0, "评论 +1");
     }
 
-    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @PostMapping("/delete")
     @ResponseBody
     public String deleteComment(int commentId) {
         commentService.deleteComment(commentId);

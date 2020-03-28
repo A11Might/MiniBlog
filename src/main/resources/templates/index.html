@@ -65,6 +65,13 @@
         </div>
     </div>
 
+    <!-- 当没有微博时显示提示 -->
+    <div class="card text-center" th:if="${postVOList==null}">
+        <div class="card-body">
+            <h5 class="card-title">没有微博</h5>
+        </div>
+    </div>
+
     <!-- 微博列表 -->
     <div th:each="postVO:${postVOList}">
         <br>

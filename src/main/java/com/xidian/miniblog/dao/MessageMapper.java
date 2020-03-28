@@ -18,10 +18,10 @@ public interface MessageMapper {
 
     Message selectLatestNotice(int userId, String eventType);
 
+    List<Message> selectNotices(int userId, String eventType, int offset, int limit);
+
     int selectNoticeCount(int userId, String eventType);
 
     int selectNoticeUnreadCount(int userId, String eventType);
-
-    List<Message> selectNotices(int userId, String eventType, int offset, int limit);
 
 }

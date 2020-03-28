@@ -22,14 +22,14 @@ public interface BlogConstant {
     int ACTIVATION_FAILURE = 2;
 
     /**
-     * 默认状态的登录凭证的超时时间
+     * 默认状态的登录凭证的超时天数
      */
-    int DEFAULT_EXPIRED_SECONDS = 3600 * 12;
+    int DEFAULT_EXPIRED_DAYS = 1;
 
     /**
-     * 记住状态的登录凭证超时时间
+     * 记住状态的登录凭证超时天数
      */
-    int REMEMBER_EXPIRED_SECONDS = 3600 * 24 * 100;
+    int REMEMBER_EXPIRED_DAYS = 100;
 
     /**
      * 实体类型: 微博
@@ -70,6 +70,11 @@ public interface BlogConstant {
      * 事件类型：发布新鲜事
      */
     int EVENT_TYPE_PUBLISH = 4;
+
+    /**
+     * 事件类型：删除
+     */
+    int EVENT_TYPE_DELETE = 5;
 
     /**
      * 用户：系统

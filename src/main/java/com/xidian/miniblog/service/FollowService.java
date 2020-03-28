@@ -1,7 +1,5 @@
 package com.xidian.miniblog.service;
 
-import com.xidian.miniblog.entity.HostHolder;
-import com.xidian.miniblog.entity.User;
 import com.xidian.miniblog.util.BlogConstant;
 import com.xidian.miniblog.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Set;
 
 /**
  * @author qhhu
@@ -22,15 +20,6 @@ public class FollowService implements BlogConstant {
 
     @Autowired
     private RedisTemplate redisTemplate;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private PostService postService;
-
-    @Autowired
-    private HostHolder hostHolder;
 
     public void follow(int userId, int entityType, int entityId) {
         redisTemplate.execute(new SessionCallback() {
@@ -100,72 +89,22 @@ public class FollowService implements BlogConstant {
         return redisTemplate.opsForZSet().score(followerKey, userId) != null;
     }
 
-    public Set<Integer> getUserFolloweeIds(int userId, int entityType) {
+    /**
+     * 返回用户关注的该类型的实体 id。
+     */
+    public Set<Integer> getUserFolloweeIds(int userId, int entityType, int offset, int limit) {
         String followeeKey = RedisKeyUtil.getUserFolloweeKey(userId, entityType);
-        Set<Integer> followeeIds = redisTemplate.opsForZSet().reverseRange(followeeKey, 0, -1);
+        Set<Integer> followeeIds = redisTemplate.opsForZSet().reverseRange(followeeKey, offset, limit);
         return followeeIds;
     }
 
-    public Set<Integer> getEntityFollowerIds(int entityType, int entityId) {
+    /**
+     * 返回该类型实体的粉丝 id。
+     */
+    public Set<Integer> getEntityFollowerIds(int entityType, int entityId, int offset, int limit) {
         String followerKey = RedisKeyUtil.getEntityFollowerKey(entityType, entityId);
-        Set<Integer> followerIds = redisTemplate.opsForZSet().reverseRange(followerKey, 0, -1);
+        Set<Integer> followerIds = redisTemplate.opsForZSet().reverseRange(followerKey, offset, limit);
         return followerIds;
     }
 
-    public List<Map<String, Object>> getUserFolloweeList(int userId, int entityType, int offset, int limit) {
-        String followeeKey = RedisKeyUtil.getUserFolloweeKey(userId, entityType);
-        Set<Integer> followeeIds = redisTemplate.opsForZSet().reverseRange(followeeKey, offset, offset + limit - 1);
-
-        if (followeeIds == null) {
-            return null;
-        }
-
-        List<Map<String, Object>> followeeVOList = new ArrayList<>();
-        for (Integer followeeId : followeeIds) {
-            Map<String, Object> followeeVO = new HashMap<>();
-            Object followee = null;
-            if (entityType == ENTITY_TYPE_USER) {
-                followee = userService.getUserById(followeeId);
-            } else if (entityType == ENTITY_TYPE_POST) {
-                followee = postService.getPostById(followeeId);
-            }
-            Double score = redisTemplate.opsForZSet().score(followeeKey, followeeId);
-            boolean isFollow = false;
-            if (hostHolder.getUser() != null) {
-                isFollow = getFollowStatus(hostHolder.getUser().getId(), entityType, followeeId);
-            }
-            followeeVO.put("followee", followee);
-            followeeVO.put("followTime", new Date(score.longValue()));
-            followeeVO.put("isFollow", isFollow);
-            followeeVOList.add(followeeVO);
-        }
-
-        return followeeVOList;
-    }
-
-    public List<Map<String, Object>> getEntityFollowerList(int entityType, int entityId, int offset, int limit) {
-        String followerKey = RedisKeyUtil.getEntityFollowerKey(entityType, entityId);
-        Set<Integer> followerIds = redisTemplate.opsForZSet().reverseRange(followerKey, offset, offset + limit - 1);
-
-        if (followerIds == null) {
-            return null;
-        }
-
-        List<Map<String, Object>> followerVOList = new ArrayList<>();
-        for (Integer followerId : followerIds) {
-            Map<String, Object> followerVO = new HashMap<>();
-            User follower = userService.getUserById(followerId);
-            Double score = redisTemplate.opsForZSet().score(followerKey, followerId);
-            boolean isFollow = false;
-            if (hostHolder.getUser() != null) {
-                isFollow = getFollowStatus(hostHolder.getUser().getId(), entityType, entityId);
-            }
-            followerVO.put("follower", follower);
-            followerVO.put("followTime", new Date(score.longValue()));
-            followerVO.put("isFollow", isFollow);
-            followerVOList.add(followerVO);
-        }
-
-        return followerVOList;
-    }
 }

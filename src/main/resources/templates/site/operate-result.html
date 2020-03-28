@@ -9,7 +9,7 @@
 <body>
 
 <!-- 导航栏 -->
-<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark sticky-top" th:replace="index::header">
     <a th:href="@{/index}" class="navbar-brand">Mini Blog</a>
     <button class="navbar-toggler" data-toggle="collapse" data-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
@@ -33,15 +33,15 @@
 <div class="container"><br>
     <div class="card">
         <div class="card-body">
-            <p class="lead" th:text="${msg}">您的账号已经激活成功,可以正常使用了!</p>
+            <p class="lead" th:utext="${msg}">显示信息</p>
             <div class="d-flex justify-content-center">
                 <div class="spinner-border" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
             </div>
             <p>
-                系统会在 <span id="seconds" class="text-danger">8</span> 秒后自动跳转,
-                您也可以点此 <a id="target" th:href="@{${target}}" class="text-primary">链接</a>, 手动跳转!
+                系统会在 <span id="seconds" class="text-danger">8</span> 秒后自动跳转，
+                您也可以点此 <a id="target" th:href="@{${target}}" class="text-primary">链接</a>，手动跳转！
             </p>
         </div>
     </div>

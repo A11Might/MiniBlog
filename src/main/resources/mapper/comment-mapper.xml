@@ -15,20 +15,20 @@
     <update id="updateCommentStatus">
         update comment
         set status = #{status}
-        where id = #{commentId}
+        where id = #{id}
     </update>
 
     <select id="selectCommentById" resultType="com.xidian.miniblog.entity.Comment">
         select <include refid="selectFields"></include>
         from comment
-        where id = #{commentId}
+        where id = #{id}
     </select>
 
     <select id="selectCommentsByEntity" resultType="com.xidian.miniblog.entity.Comment">
         select <include refid="selectFields"></include>
         from comment
         where entity_type = #{entityType} and entity_id = #{entityId} and status != 1
-        order by create_time asc
+        order by id asc
         limit #{offset}, #{limit}
     </select>
 

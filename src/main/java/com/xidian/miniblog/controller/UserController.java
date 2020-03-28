@@ -1,5 +1,6 @@
 package com.xidian.miniblog.controller;
 
+import com.xidian.miniblog.annotation.LoginRequired;
 import com.xidian.miniblog.entity.HostHolder;
 import com.xidian.miniblog.entity.Page;
 import com.xidian.miniblog.entity.Post;
@@ -13,9 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -42,14 +41,13 @@ public class UserController implements BlogConstant {
     @Autowired
     private FollowService followService;
 
-    @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
-    public String getUserProfilePage(Model model,
-                                     @PathVariable("userId") int userId,
-                                     Page page) {
+    @GetMapping("/profile/{userId}")
+    public String getUserProfilePage(Model model, Page page, @PathVariable("userId") int userId) {
+        User loginUser = hostHolder.getUser();
+
         page.setRows(postService.getPostRowsByUserId(userId));
         page.setPath("/user/profile/" + userId);
 
-        User loginUser = hostHolder.getUser();
         User user = userService.getUserById(userId);
         model.addAttribute("user", user);
 
@@ -66,27 +64,26 @@ public class UserController implements BlogConstant {
         if (loginUser != null) {
             isFollow = followService.getFollowStatus(hostHolder.getUser().getId(), BlogConstant.ENTITY_TYPE_USER, userId);
         }
-
         model.addAttribute("isFollow", isFollow);
 
         return "/site/profile";
     }
 
-    @RequestMapping(path = "/setting", method = RequestMethod.GET)
+    @LoginRequired
+    @GetMapping("/setting")
     public String getSettingPage() {
-
         return "/site/setting";
-
     }
 
-    @RequestMapping(path = "/modifypassword", method = RequestMethod.POST)
+    @LoginRequired
+    @PostMapping("/modifypassword")
     public String modifyPassword(Model model, String oldPassword, String newPassword) {
+        User loginUser = hostHolder.getUser();
+
         model.addAttribute("oldPassword", oldPassword);
         model.addAttribute("newPassword", newPassword);
 
-        User user = hostHolder.getUser();
-
-        Map<String, Object> map = userService.modifyPassword(user.getId(), oldPassword, newPassword);
+        Map<String, Object> map = userService.modifyPassword(loginUser.getId(), oldPassword, newPassword);
         if (map.containsKey("oldPasswordMsg")) {
             model.addAttribute("oldPasswordMsg", map.get("oldPasswordMsg"));
             return "/site/setting";
@@ -96,8 +93,10 @@ public class UserController implements BlogConstant {
             return "/site/setting";
         }
 
-        return "redirect:/index";
+        model.addAttribute("msg", "密码修改成功，请重新登录");
+        model.addAttribute("target", "/login");
 
+        return "/site/operate-result";
     }
 
 }

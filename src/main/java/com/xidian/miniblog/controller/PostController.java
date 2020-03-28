@@ -12,10 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
@@ -46,7 +43,7 @@ public class PostController implements BlogConstant {
     @Autowired
     private EventProducer eventProducer;
 
-    @RequestMapping(path = "/add", method = RequestMethod.POST)
+    @PostMapping("/add")
     @ResponseBody
     public String addPost(String content) {
         User loginUser = hostHolder.getUser();
@@ -66,47 +63,55 @@ public class PostController implements BlogConstant {
         post.setCreateTime(new Date());
         postService.addPost(post);
 
+/*
+        // push 操作
         Event event = new Event()
                 .setType(EVENT_TYPE_PUBLISH)
                 .setActorId(loginUser.getId())
                 .setEntityType(ENTITY_TYPE_POST)
                 .setEntityId(post.getId());
         eventProducer.fireEvent(event);
+*/
 
         return BlogUtil.getJSONString(0, "新鲜事 +1");
     }
 
-    @RequestMapping(path = "/detail/{postId}", method = RequestMethod.GET)
-    public String getPostDetailPage(Model model,
-                                    Page page,
-                                    @PathVariable("postId") int postId) {
+    @GetMapping("/detail/{postId}")
+    public String getPostDetailPage(Model model, Page page, @PathVariable("postId") int postId) {
+        User loginUser = hostHolder.getUser();
+
         page.setRows(commentService.getCommentCountByEntity(ENTITY_TYPE_POST, postId));
         page.setPath("/post/detail/" + postId);
 
+        Map<String, Object> postVO = new HashMap<>();
+
         Post post = postService.getPostById(postId);
-        User user = userService.getUserById(post.getUserId());
-        User loginUser = hostHolder.getUser();
+        User actor = userService.getUserById(post.getUserId());
+
         List<Comment> commentList = commentService.getCommentsByEntity(ENTITY_TYPE_POST, postId, page.getOffset(), page.getLimit());
         List<Map<String, Object>> commentVOList = new ArrayList<>();
         for (Comment comment : commentList) {
             Map<String, Object> commentVO = new HashMap<>();
             User commentUser = userService.getUserById(comment.getUserId());
+
             long commentLikeCount = likeService.getEntityLikeCount(ENTITY_TYPE_COMMENT, comment.getId());
             boolean commentLikeStatus = loginUser == null ? false : likeService.getLikeStatus(loginUser.getId(), ENTITY_TYPE_COMMENT, comment.getId());
+
             commentVO.put("likeCount", commentLikeCount);
             commentVO.put("likeStatus", commentLikeStatus);
             commentVO.put("commentUser", commentUser);
             commentVO.put("comment", comment);
             commentVOList.add(commentVO);
         }
-        Map<String, Object> postVO = new HashMap<>();
+
         long postLikeCount = likeService.getEntityLikeCount(ENTITY_TYPE_POST, post.getId());
         // 这里可能未登录，需要判断。
         boolean postLikeStatus = loginUser == null ? false : likeService.getLikeStatus(loginUser.getId(), ENTITY_TYPE_POST, post.getId());
+
         postVO.put("likeCount", postLikeCount);
         postVO.put("likeStatus", postLikeStatus);
         postVO.put("post", post);
-        postVO.put("user", user);
+        postVO.put("actor", actor);
         postVO.put("commentVOList", commentVOList);
 
         model.addAttribute("postVO", postVO);
@@ -114,10 +119,22 @@ public class PostController implements BlogConstant {
         return "/site/post-detail";
     }
 
-    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @PostMapping("/delete")
     @ResponseBody
     public String deletePost(int postId) {
+        User loginUser = hostHolder.getUser();
+
         postService.deletePost(postId);
+
+/*
+        // push 操作
+        Event event = new Event()
+                .setType(EVENT_TYPE_DELETE)
+                .setActorId(loginUser.getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(postId);
+        eventProducer.fireEvent(event);
+*/
 
         return BlogUtil.getJSONString(0, "微博删除成功");
     }

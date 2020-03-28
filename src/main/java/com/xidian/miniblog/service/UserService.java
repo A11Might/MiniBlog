@@ -8,6 +8,7 @@ import com.xidian.miniblog.util.BlogUtil;
 import com.xidian.miniblog.util.MailClient;
 import com.xidian.miniblog.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -122,7 +123,7 @@ public class UserService implements BlogConstant {
         }
     }
 
-    public Map<String, Object> login(User user, int expiredSeconds) {
+    public Map<String, Object> login(User user, boolean remember) {
         Map<String, Object> map = new HashMap<>();
 
         // 空值处理
@@ -160,7 +161,7 @@ public class UserService implements BlogConstant {
         loginTicket.setUserId(u.getId());
         loginTicket.setTicket(BlogUtil.generateUUID());
         loginTicket.setStatus(0);
-        loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
+        loginTicket.setExpired(DateUtils.addDays(new Date(), remember ? REMEMBER_EXPIRED_DAYS : DEFAULT_EXPIRED_DAYS));
 
         String loginTicketKey = RedisKeyUtil.getLoginTicketKey(loginTicket.getTicket());
         redisTemplate.opsForValue().set(loginTicketKey, loginTicket);
