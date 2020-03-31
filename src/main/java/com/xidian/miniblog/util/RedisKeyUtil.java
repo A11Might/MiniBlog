@@ -14,6 +14,10 @@ public class RedisKeyUtil {
     private static final String FOLLOWEE = "followee";
     private static final String EVENT_QUEUE = "event";
     private static final String TIMELINE = "timeline";
+    private static final String POST = "post";
+    private static final String POST_LIST = "postlist";
+    private static final String USER = "user";
+    private static final String SCORE = "score";
 
     private RedisKeyUtil() {}
 
@@ -84,4 +88,21 @@ public class RedisKeyUtil {
         return TIMELINE + SPLIT + userId;
     }
 
+    /**
+     * 使用 String 类型缓存用户信息，key 为用户的 id。
+     */
+    public static String getUserKey(int userId) {
+        return USER + SPLIT + userId;
+    }
+
+    public static String getPostListKey(int offset, int limit) {
+        return POST_LIST + SPLIT + offset + SPLIT + limit;
+    }
+
+    /**
+     * 使用 set 类型存储需要更新分数的微博 id。
+     */
+    public static String getPostScoreKey() {
+        return POST + SPLIT + SCORE;
+    }
 }

@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
@@ -50,14 +51,18 @@ public class IndexController implements BlogConstant {
     }
 
     @GetMapping("/index")
-    public String getIndexPage(Model model, Page page) {
+    public String getIndexPage(Model model, Page page,
+                               @RequestParam(name = "orderMode", defaultValue = "0") int orderMode) {
         page.setRows(postService.getPostRowsByUserId(0));
-        page.setPath("/index");
+        page.setPath("/index?orderMode=" + orderMode);
 
-        List<Post> postList = postService.getPostsByUserId(0, page.getOffset(), page.getLimit());
+        List<Post> postList = postService.getPostsByUserId(0, page.getOffset(), page.getLimit(), orderMode);
         model.addAttribute("postVOList", getPostVOListByPostList(postList));
 
         model.addAttribute("totalNoticeUnreadCount", getTotalNoticeUnreadCount());
+
+        // 标记当前页面是最新或者热门
+        model.addAttribute("orderMode", orderMode);
 
         return "/index";
     }
@@ -114,6 +119,9 @@ public class IndexController implements BlogConstant {
         model.addAttribute("postVOList", getPostVOListByPostList(postList));
 
         model.addAttribute("totalNoticeUnreadCount", getTotalNoticeUnreadCount());
+
+        // 标记当前是关注页面
+        model.addAttribute("orderMode", 2);
 
         return "/index";
     }

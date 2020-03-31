@@ -80,4 +80,14 @@ public interface BlogConstant {
      * 用户：系统
      */
     int SYSTEM_USER = 1;
+
+    /**
+     * 顺序：按照创建时间降序
+     */
+    int ORDER_BY_CREATE_TIME = 0;
+
+    /**
+     * 顺序：按照分数排序降序
+     */
+    int ORDER_BY_SCORE = 1;
 }

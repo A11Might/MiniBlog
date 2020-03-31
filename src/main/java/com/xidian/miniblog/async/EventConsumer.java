@@ -24,12 +24,13 @@ import java.util.Map;
 public class EventConsumer implements InitializingBean, ApplicationContextAware {
 
     private static final Logger logger = LoggerFactory.getLogger(EventConsumer.class);
+
     private Map<Integer, List<EventHandler>> config = new HashMap<>();
+
     private ApplicationContext applicationContext;
 
     @Autowired
     private EventQueue eventQueue;
-
 
     @Override
     public void afterPropertiesSet() throws Exception {

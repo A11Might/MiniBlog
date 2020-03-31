@@ -4,10 +4,13 @@ import com.xidian.miniblog.async.EventProducer;
 import com.xidian.miniblog.entity.Event;
 import com.xidian.miniblog.entity.HostHolder;
 import com.xidian.miniblog.entity.User;
+import com.xidian.miniblog.service.CommentService;
 import com.xidian.miniblog.service.LikeService;
 import com.xidian.miniblog.util.BlogConstant;
 import com.xidian.miniblog.util.BlogUtil;
+import com.xidian.miniblog.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -29,7 +32,13 @@ public class LikeController implements BlogConstant {
     private LikeService likeService;
 
     @Autowired
+    private CommentService commentService;
+
+    @Autowired
     private EventProducer eventProducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @PostMapping("/like")
     @ResponseBody
@@ -58,6 +67,14 @@ public class LikeController implements BlogConstant {
                     .setEntityId(entityId)
                     .setEntityOwnerId(entityOwnerId);
             eventProducer.fireEvent(event);
+        }
+
+        if (entityType == ENTITY_TYPE_POST) {
+            // 将该更新分数的微博存入 redis 中，采用定时任务的方式来更新分数
+            String postScoreKey = RedisKeyUtil.getPostScoreKey();
+            redisTemplate.opsForSet().add(postScoreKey, entityId);
+        } else if (entityType == ENTITY_TYPE_COMMENT) {
+            commentService.updateCommentScore(entityId, (int) likeCount);
         }
 
         return BlogUtil.getJSONString(0, map);

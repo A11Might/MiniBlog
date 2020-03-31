@@ -18,6 +18,12 @@
         where id = #{id}
     </update>
 
+    <update id="updateCommentScore">
+        update comment
+        set score = #{score}
+        where id = #{id}
+    </update>
+
     <select id="selectCommentById" resultType="com.xidian.miniblog.entity.Comment">
         select <include refid="selectFields"></include>
         from comment
@@ -28,7 +34,7 @@
         select <include refid="selectFields"></include>
         from comment
         where entity_type = #{entityType} and entity_id = #{entityId} and status != 1
-        order by id asc
+        order by score desc, id desc
         limit #{offset}, #{limit}
     </select>
 

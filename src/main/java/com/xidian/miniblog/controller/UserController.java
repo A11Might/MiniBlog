@@ -51,18 +51,18 @@ public class UserController implements BlogConstant {
         User user = userService.getUserById(userId);
         model.addAttribute("user", user);
 
-        List<Post> postList = postService.getPostsByUserId(user.getId(), page.getOffset(), page.getLimit());
+        List<Post> postList = postService.getPostsByUserId(user.getId(), page.getOffset(), page.getLimit(), ORDER_BY_CREATE_TIME);
         model.addAttribute("postList", postList);
 
-        int followerCount = (int) followService.getEntityFollowerCount(BlogConstant.ENTITY_TYPE_USER, userId);
+        int followerCount = (int) followService.getEntityFollowerCount(ENTITY_TYPE_USER, userId);
         model.addAttribute("followerCount", followerCount);
 
-        int followeeCount = (int) followService.getUserFolloweeCount(userId, BlogConstant.ENTITY_TYPE_USER);
+        int followeeCount = (int) followService.getUserFolloweeCount(userId, ENTITY_TYPE_USER);
         model.addAttribute("followeeCount", followeeCount);
 
         boolean isFollow = false;
         if (loginUser != null) {
-            isFollow = followService.getFollowStatus(hostHolder.getUser().getId(), BlogConstant.ENTITY_TYPE_USER, userId);
+            isFollow = followService.getFollowStatus(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
         }
         model.addAttribute("isFollow", isFollow);
 

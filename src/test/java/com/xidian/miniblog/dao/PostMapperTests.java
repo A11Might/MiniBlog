@@ -39,7 +39,7 @@ public class PostMapperTests {
     @Test
     public void selectTest() {
         Post post = postMapper.selectPostById(282);
-        List<Post> list = postMapper.selectPostsByUserId(0, 0, 10);
+        List<Post> list = postMapper.selectPostsByUserId(0, 0, 10, 0);
         System.out.println(post);
         for (Post p : list) {
             System.out.println(p);
@@ -61,7 +61,7 @@ public class PostMapperTests {
     }
 
     @Test
-    public void selectTests() {
+    public void selectTest2() {
         List<Integer> list = new ArrayList<>();
         list.add(155);
         list.add(144);
@@ -69,5 +69,17 @@ public class PostMapperTests {
             System.out.println(post);
         }
         System.out.println(postMapper.selectPostRowsByUserIds(list));
+    }
+
+    @Test
+    public void selectTest3() {
+        for (Post post : postMapper.selectPostsByUserId(0, 0, 10, 1)) {
+            System.out.println(post);
+        }
+    }
+
+    @Test
+    public void selectTest4() {
+        System.out.println(postMapper.selectCommentCount(367));
     }
 }

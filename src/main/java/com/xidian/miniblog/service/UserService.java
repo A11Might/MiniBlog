@@ -9,6 +9,8 @@ import com.xidian.miniblog.util.MailClient;
 import com.xidian.miniblog.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,6 +22,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author qhhu
@@ -27,6 +30,8 @@ import java.util.Random;
  */
 @Service
 public class UserService implements BlogConstant {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
     private UserMapper userMapper;
@@ -47,7 +52,16 @@ public class UserService implements BlogConstant {
     private String domain;
 
     public User getUserById(int id) {
-        return userMapper.selectUserById(id);
+        // 优先从缓存中寻找用户信息
+        User user = getCache(id);
+
+        // 找不到时初始化缓存信息
+        if (user == null) {
+            user = initCache(id);
+            logger.debug("从数据库中读取用户信息");
+        }
+
+        return user;
     }
 
     public User getUserByUsername(String username) {
@@ -111,12 +125,16 @@ public class UserService implements BlogConstant {
         return map;
     }
 
-    public int activation(int userId, String activationCode) {
-        User user = userMapper.selectUserById(userId);
+    public int activation(int id, String activationCode) {
+        User user = userMapper.selectUserById(id);
         if (user.getStatus() == 1) {
             return ACTIVATION_REPEAT;
         } else if (user.getActivationCode().equals(activationCode)) {
-            userMapper.updateUserStatus(userId, 1);
+            userMapper.updateUserStatus(id, 1);
+
+            // 用户信息变化时清除缓存
+            clearCache(id);
+
             return ACTIVATION_SUCCESS;
         } else {
             return ACTIVATION_FAILURE;
@@ -178,7 +196,7 @@ public class UserService implements BlogConstant {
         redisTemplate.opsForValue().set(loginTicketKey, loginTicket);
     }
 
-    public Map<String, Object> modifyPassword(int userId, String oldPassword, String newPassword) {
+    public Map<String, Object> modifyPassword(int id, String oldPassword, String newPassword) {
         Map<String , Object> map = new HashMap<>();
 
         // 空值处理
@@ -192,7 +210,7 @@ public class UserService implements BlogConstant {
         }
 
         // 验证旧密码
-        User user = userMapper.selectUserById(userId);
+        User user = userMapper.selectUserById(id);
         oldPassword = BlogUtil.md5(oldPassword + user.getSalt());
         if (!user.getPassword().equals(oldPassword)) {
             map.put("oldPasswordMsg", "旧密码错误");
@@ -201,7 +219,10 @@ public class UserService implements BlogConstant {
 
         // 修改密码
         newPassword = BlogUtil.md5(newPassword + user.getSalt());
-        userMapper.updateUserPassword(userId, newPassword);
+        userMapper.updateUserPassword(id, newPassword);
+
+        // 用户信息变化时清除缓存
+        clearCache(id);
 
         return map;
     }
@@ -211,4 +232,25 @@ public class UserService implements BlogConstant {
         return (LoginTicket) redisTemplate.opsForValue().get(loginTicketKey);
     }
 
+    /**
+     * 使用 redis 缓存用户信息：二级缓存
+     */
+    private User getCache(int id) {
+        String userKey = RedisKeyUtil.getUserKey(id);
+        return (User) redisTemplate.opsForValue().get(userKey);
+    }
+
+    private User initCache(int id) {
+        User user = userMapper.selectUserById(id);
+
+        String userKey = RedisKeyUtil.getUserKey(id);
+        redisTemplate.opsForValue().set(userKey, user, 3600, TimeUnit.SECONDS);
+
+        return user;
+    }
+
+    private void clearCache(int id) {
+        String userKey = RedisKeyUtil.getUserKey(id);
+        redisTemplate.delete(userKey);
+    }
 }

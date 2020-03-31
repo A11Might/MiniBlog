@@ -1,5 +1,6 @@
 package com.xidian.miniblog.service;
 
+import com.xidian.miniblog.util.BlogConstant;
 import com.xidian.miniblog.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
  * @date 2020/3/20 - 15:35
  */
 @Service
-public class LikeService {
+public class LikeService implements BlogConstant {
 
     @Autowired
     private RedisTemplate redisTemplate;

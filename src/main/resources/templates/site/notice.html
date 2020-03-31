@@ -41,15 +41,19 @@
 <div class="container"><br>
 
     <!-- 标签栏 -->
-    <nav>
-        <div class="nav nav-tabs" id="nav-tab" role="tablist">
-            <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">通知
-                <span class="badge badge-pill badge-danger" th:if="${totalNoticeUnreadCount>0}" th:utext="${totalNoticeUnreadCount}">99+</span>
-            </a></a>
-            <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">私信（TODO）</a></a>
-        </div>
-    </nav>
-    <br>
+    <div class="position-relative">
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link position-relative active" th:href="@{/notice/list}">
+                    通知<span class="badge badge-pill badge-danger" th:if="${totalNoticeUnreadCount>0}" th:utext="${totalNoticeUnreadCount}">99+</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link position-relative" href="#">私信（TODO）
+                </a>
+            </li>
+        </ul>
+    </div>
 
     <!-- 点赞通知 -->
     <div class="card" th:if="${likeNoticeVO!=null}">

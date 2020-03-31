@@ -45,15 +45,22 @@
 <div class="container"><br>
 
     <!-- 标签栏 -->
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a th:href="@{/index}">最新</a></li>
-            <li class="breadcrumb-item"><a href="#">热门（TODO）</a></li>
-            <li class="breadcrumb-item" th:if="${loginUser!=null}">
-                <a th:href="@{/timelinebypull}">关注</a>
+    <div class="position-relative">
+        <ul class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a th:class="|nav-link position-relative ${orderMode==0?'active':''}|" th:href="@{/index}">首页
+                </a>
             </li>
-        </ol>
-    </nav>
+            <li class="nav-item">
+                <a th:class="|nav-link position-relative ${orderMode==1?'active':''}|" th:href="@{/index?orderMode=1}">热门
+                </a>
+            </li>
+            <li class="nav-item">
+                <a th:class="|nav-link position-relative ${orderMode==2?'active':''}|" th:href="@{/timelinebypull}">关注
+                </a>
+            </li>
+        </ul>
+    </div>
 
     <!-- 新鲜事框 -->
     <div class="card" th:if="${loginUser!=null}">

@@ -6,10 +6,14 @@ import com.xidian.miniblog.service.CommentService;
 import com.xidian.miniblog.service.PostService;
 import com.xidian.miniblog.util.BlogConstant;
 import com.xidian.miniblog.util.BlogUtil;
+import com.xidian.miniblog.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
 
@@ -32,6 +36,9 @@ public class CommentController implements BlogConstant {
 
     @Autowired
     private EventProducer eventProducer;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @PostMapping("/add")
     @ResponseBody
@@ -67,6 +74,10 @@ public class CommentController implements BlogConstant {
                     .setEntityOwnerId(postService.getPostById(postId).getUserId());
             eventProducer.fireEvent(event);
         }
+
+        // 将该更新分数的微博存入 redis 中，采用定时任务的方式来更新分数
+        String postScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(postScoreKey, postId);
 
         return BlogUtil.getJSONString(0, "评论 +1");
     }

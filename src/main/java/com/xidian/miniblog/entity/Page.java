@@ -24,8 +24,6 @@ public class Page {
 
     /**
      * 获取当前页面数据的起始行
-     *
-     * @return
      */
     public int getOffset() {
         return (current - 1) * limit;
@@ -61,8 +59,6 @@ public class Page {
 
     /**
      * 获得总页数
-     *
-     * @return
      */
     public int getTotal() {
         int total = rows / limit;
@@ -74,8 +70,6 @@ public class Page {
 
     /**
      * 获取当前页面显示的起始页码数
-     *
-     * @return
      */
     public int getFrom() {
         int from = current - 2;
@@ -84,8 +78,6 @@ public class Page {
 
     /**
      * 获取当前页面显示的结束页码数
-     *
-     * @return
      */
     public int getTo() {
         int to = current + 2;

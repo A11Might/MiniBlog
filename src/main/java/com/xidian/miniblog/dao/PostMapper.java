@@ -18,7 +18,7 @@ public interface PostMapper {
     /**
      * 当 userId == 0 时，查询所有帖子；当 userId ！= 0 时，查询 user_id = userId 的帖子。
      */
-    List<Post> selectPostsByUserId(int userId, int offset, int limit);
+    List<Post> selectPostsByUserId(int userId, int offset, int limit, int orderMode);
 
     /**
      * 当 userId == 0 时，查询所有帖子数量；当 userId ！= 0 时，查询 user_id = userId 的帖子数量。
@@ -31,6 +31,8 @@ public interface PostMapper {
     int selectPostRowsByUserIds(@Param("userIds") List<Integer> userIds);
 
     int insertPost(Post post);
+
+    int selectCommentCount(int id);
 
     int updateCommentCount(int id, int commentCount);
 

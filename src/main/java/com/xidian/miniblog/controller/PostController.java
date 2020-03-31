@@ -8,8 +8,10 @@ import com.xidian.miniblog.service.PostService;
 import com.xidian.miniblog.service.UserService;
 import com.xidian.miniblog.util.BlogConstant;
 import com.xidian.miniblog.util.BlogUtil;
+import com.xidian.miniblog.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +45,9 @@ public class PostController implements BlogConstant {
     @Autowired
     private EventProducer eventProducer;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     @PostMapping("/add")
     @ResponseBody
     public String addPost(String content) {
@@ -72,6 +77,10 @@ public class PostController implements BlogConstant {
                 .setEntityId(post.getId());
         eventProducer.fireEvent(event);
 */
+
+        // 将该更新分数的微博存入 redis 中，采用定时任务的方式来更新分数
+        String postScoreKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(postScoreKey, post.getId());
 
         return BlogUtil.getJSONString(0, "新鲜事 +1");
     }

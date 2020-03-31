@@ -22,4 +22,6 @@ public interface CommentMapper {
 
     int updateCommentStatus(int id, int status);
 
+    int updateCommentScore(int id, int score);
+
 }

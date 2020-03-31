@@ -44,7 +44,12 @@
         <if test="userId!=0">
             and user_id = #{userId}
         </if>
-        order by id desc
+        <if test="orderMode==0">
+            order by id desc
+        </if>
+        <if test="orderMode==1">
+            order by score desc
+        </if>
         limit #{offset}, #{limit}
     </select>
 
@@ -77,6 +82,12 @@
         <foreach collection="userIds" item="userId" open="(" separator="," close=")">
             #{userId}
         </foreach>
+    </select>
+
+    <select id="selectCommentCount" resultType="java.lang.Integer">
+        select comment_count
+        from post
+        where id = #{id}
     </select>
 
     <insert id="insertPost" parameterType="com.xidian.miniblog.entity.Post" keyProperty="id">

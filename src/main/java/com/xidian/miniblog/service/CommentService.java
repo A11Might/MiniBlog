@@ -3,6 +3,7 @@ package com.xidian.miniblog.service;
 import com.xidian.miniblog.dao.CommentMapper;
 import com.xidian.miniblog.entity.Comment;
 import com.xidian.miniblog.util.BlogConstant;
+import com.xidian.miniblog.util.SensitiveFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -25,6 +26,9 @@ public class CommentService implements BlogConstant {
     @Autowired
     private PostService postService;
 
+    @Autowired
+    private SensitiveFilter sensitiveFilter;
+
     public Comment getCommentById(int commentId) {
         return commentMapper.selectCommentById(commentId);
     }
@@ -45,6 +49,7 @@ public class CommentService implements BlogConstant {
 
         // 添加评论
         comment.setContent(HtmlUtils.htmlEscape(comment.getContent()));
+        comment.setContent(sensitiveFilter.filter(comment.getContent()));
         int rows = commentMapper.insertComment(comment);
 
         // 更新帖子评论数（不包括回复的数量）
@@ -65,6 +70,10 @@ public class CommentService implements BlogConstant {
         postService.updatePostCommentCount(comment.getEntityId(), count);
 
         return rows;
+    }
+
+    public int updateCommentScore(int id, int score) {
+        return commentMapper.updateCommentScore(id, score);
     }
 
 }
