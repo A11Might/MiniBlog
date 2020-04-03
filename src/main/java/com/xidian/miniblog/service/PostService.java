@@ -152,7 +152,7 @@ public class PostService implements BlogConstant {
         List<Post> postList = postMapper.selectPostsByUserId(0, offset, limit, 1);
 
         String postListKey = RedisKeyUtil.getPostListKey(offset, limit);
-        redisTemplate.opsForValue().set(postListKey, postList, 3600, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(postListKey, postList, 60 * 5, TimeUnit.SECONDS);
 
         return postList;
     }

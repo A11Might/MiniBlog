@@ -48,7 +48,7 @@
     <div class="position-relative">
         <ul class="nav nav-tabs mb-3">
             <li class="nav-item">
-                <a th:class="|nav-link position-relative ${orderMode==0?'active':''}|" th:href="@{/index}">首页
+                <a th:class="|nav-link position-relative ${orderMode==0?'active':''}|" th:href="@{/index}">最新
                 </a>
             </li>
             <li class="nav-item">
@@ -56,7 +56,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a th:class="|nav-link position-relative ${orderMode==2?'active':''}|" th:href="@{/timelinebypull}">关注
+                <a th:class="|nav-link position-relative ${orderMode==2?'active':''}|" th:if="${loginUser!=null}" th:href="@{/timelinebypull}">关注
                 </a>
             </li>
         </ul>

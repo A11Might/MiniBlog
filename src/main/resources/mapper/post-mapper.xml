@@ -48,7 +48,7 @@
             order by id desc
         </if>
         <if test="orderMode==1">
-            order by score desc
+            order by score desc, id desc
         </if>
         limit #{offset}, #{limit}
     </select>

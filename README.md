@@ -1,10 +1,11 @@
 # MiniBlog
 
-目前写完前端页面，展示如下：
+目前项目已基本完成。若想 clone 到本地运行，MySQL 数据库的表在 other 目录中。
 
+## 在线演示
 
-![index](pics/register.png)
+[MiniBlog](huqihh.com)
 
-![index](pics/login.png)
+用户名和密码都为 test。
 
-![index](pics/index.png)
+![index](other/imgs/index.png)
