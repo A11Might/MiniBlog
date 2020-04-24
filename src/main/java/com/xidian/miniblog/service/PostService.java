@@ -119,6 +119,7 @@ public class PostService implements BlogConstant {
 
         // 转义 HTML 标签
         post.setContent(HtmlUtils.htmlEscape(post.getContent()));
+        // 过滤敏感词
         post.setContent(sensitiveFilter.filter(post.getContent()));
 
         return postMapper.insertPost(post);

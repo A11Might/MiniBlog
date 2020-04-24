@@ -9,13 +9,21 @@ import com.xidian.miniblog.service.FollowService;
 import com.xidian.miniblog.service.PostService;
 import com.xidian.miniblog.service.UserService;
 import com.xidian.miniblog.util.BlogConstant;
+import com.xidian.miniblog.util.BlogUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +36,12 @@ import java.util.Map;
 public class UserController implements BlogConstant {
 
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
+    @Value("${community.path.domain}")
+    private String domain;
+
+    @Value("${community.path.upload}")
+    private String uploadPath;
 
     @Autowired
     private HostHolder hostHolder;
@@ -95,8 +109,65 @@ public class UserController implements BlogConstant {
 
         model.addAttribute("msg", "密码修改成功，请重新登录");
         model.addAttribute("target", "/login");
-
         return "/site/operate-result";
     }
 
+    @PostMapping("/modifyheaderimage")
+    public String uploadHeader(MultipartFile headerImage, Model model) {
+        if (headerImage == null) {
+            model.addAttribute("error", "您还没有选择图片");
+            return "/site/setting";
+        }
+
+        if (headerImage.getSize() > 2000000) {
+            model.addAttribute("error", "图片大小不能大于2M");
+            return "/site/setting";
+        }
+
+        String fileName = headerImage.getOriginalFilename();
+        String suffix = fileName.substring(fileName.lastIndexOf("."));
+        if (!suffix.equals(".jpg") && !suffix.equals(".png")) {
+            model.addAttribute("error", "图片格式不正确");
+            return "/site/setting";
+        }
+
+        fileName = BlogUtil.generateUUID() + suffix;
+        File dest = new File(uploadPath + "/" + fileName);
+        try {
+            headerImage.transferTo(dest);
+        } catch (IOException e) {
+            logger.error("图片上传失败：" + e.getMessage());
+            throw new RuntimeException("上传文件失败，服务器发生异常");
+        }
+
+        // 图片地址 domain/user/headerimage/xxx.png
+        User loginUser = hostHolder.getUser();
+        String newHeaderUrl = domain + "/user/headerimage/" + fileName;
+        userService.modifyHeaderUrl(loginUser.getId(), newHeaderUrl);
+        model.addAttribute("msg", "头像修改成功");
+        model.addAttribute("target", "profile/" + loginUser.getId());
+        return "/site/operate-result";
+    }
+
+    @GetMapping("/headerimage/{fileName}")
+    public void getHeader(@PathVariable("fileName") String fileName, HttpServletResponse response) {
+        fileName = uploadPath + "/" + fileName;
+        String suffix = fileName.substring(fileName.lastIndexOf("."));
+
+        // 向浏览器响应图片
+        response.setContentType("image/" + suffix);
+        try (
+                FileInputStream fis = new FileInputStream(fileName);
+                OutputStream os = response.getOutputStream();
+        ) {
+            // 建立缓冲区, 一批一批输出, 提高效率
+            byte[] buffer = new byte[1024];
+            int b = 0;
+            while ((b = fis.read(buffer)) != -1) {
+                os.write(buffer, 0, b);
+            }
+        } catch (IOException e) {
+            logger.error("读取头像失败: " + e.getMessage());
+        }
+    }
 }

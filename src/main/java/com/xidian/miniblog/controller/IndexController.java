@@ -172,6 +172,10 @@ public class IndexController implements BlogConstant {
             boolean postLikeStatus = loginUser == null ? false : likeService.getLikeStatus(loginUser.getId(), ENTITY_TYPE_POST, post.getId());
 
             postVO.put("author", author);
+            post.setContent(post.getContent().replaceAll("\n", "<br>"));
+            if (post.getContent().length() > 150) {
+                post.setContent(post.getContent().substring(0, 150));
+            }
             postVO.put("post", post);
             postVO.put("level", level++);
             postVO.put("commentVOList", commentVOList);

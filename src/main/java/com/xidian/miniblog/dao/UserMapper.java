@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface UserMapper {
 
-    User selectUserById(int id);
+    User selectUserById(int userId);
 
     User selectUserByUsername(String username);
 
@@ -21,4 +21,6 @@ public interface UserMapper {
     int updateUserStatus(int userId, int status);
 
     int updateUserPassword(int userId, String password);
+
+    int updateUserHeaderUrl(int userId, String headerUrl);
 }

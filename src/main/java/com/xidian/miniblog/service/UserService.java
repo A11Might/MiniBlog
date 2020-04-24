@@ -227,6 +227,15 @@ public class UserService implements BlogConstant {
         return map;
     }
 
+    public int modifyHeaderUrl(int userId, String headerUrl) {
+        int row = userMapper.updateUserHeaderUrl(userId, headerUrl);
+
+        // 用户信息变化时清除缓存
+        clearCache(userId);
+
+        return row;
+    }
+
     public LoginTicket getLoginTicketByTicket(String ticket) {
         String loginTicketKey = RedisKeyUtil.getLoginTicketKey(ticket);
         return (LoginTicket) redisTemplate.opsForValue().get(loginTicketKey);

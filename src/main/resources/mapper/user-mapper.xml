@@ -15,7 +15,7 @@
     <select id="selectUserById" resultType="com.xidian.miniblog.entity.User">
         select <include refid="selectFields"></include>
         from user
-        where id = #{id}
+        where id = #{userId}
     </select>
 
     <select id="selectUserByUsername" resultType="com.xidian.miniblog.entity.User">
@@ -41,6 +41,10 @@
 
     <update id="updateUserPassword">
         update user set password = #{password} where id = #{userId}
+    </update>
+
+    <update id="updateUserHeaderUrl">
+        update user set header_url = #{headerUrl} where id = #{userId}
     </update>
 
 </mapper>

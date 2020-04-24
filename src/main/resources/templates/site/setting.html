@@ -40,6 +40,21 @@
 
 <!-- 设置主体 -->
 <div class="container"><br>
+
+    <!-- 修改头像 -->
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">修改头像</h5>
+            <br>
+            <form enctype="multipart/form-data" method="post" th:action="@{/user/modifyheaderimage}">
+					<div class="form-group">
+                        <input type="file" th:class="|form-control-file ${error==null?'':'is-invalid'}|" name="headerImage" id="headerImage">
+                        <div class="invalid-feedback" th:utext="${error}">图片格式不正确</div>
+					</div>
+                    <button type="submit" class="btn btn-primary">上传</button>
+				</form>
+        </div>
+    </div>
     <br>
 
     <!-- 修改密码 -->
@@ -54,7 +69,6 @@
                            th:class="|form-control ${oldPasswordMsg==null?'':'is-invalid'}|" placeholder="旧密码"
                            id="oldPassword" name="oldPassword" th:value="${oldPassword==null?'':oldPassword}">
                     <div class="invalid-feedback" th:utext="${oldPasswordMsg==null?'':oldPasswordMsg}">旧密码不正确</div>
-
                 </div>
                 <div class="form-group">
                     <label for="newPassword">新密码</label>

@@ -15,7 +15,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 
@@ -64,7 +63,7 @@ public class PostController implements BlogConstant {
 
         Post post = new Post();
         post.setUserId(loginUser.getId());
-        post.setContent(HtmlUtils.htmlEscape(content));
+        post.setContent(content);
         post.setCreateTime(new Date());
         postService.addPost(post);
 
@@ -95,6 +94,7 @@ public class PostController implements BlogConstant {
         Map<String, Object> postVO = new HashMap<>();
 
         Post post = postService.getPostById(postId);
+        post.setContent(post.getContent().replaceAll("\n", "<br>"));
         User actor = userService.getUserById(post.getUserId());
 
         List<Comment> commentList = commentService.getCommentsByEntity(ENTITY_TYPE_POST, postId, page.getOffset(), page.getLimit());

@@ -43,7 +43,7 @@
 
     <!-- 主页个人信息 -->
     <div>
-        <img th:src="${user.headerUrl}" alt="" class="rounded mx-auto d-block img-thumbnail">
+        <img th:src="${user.headerUrl}" alt="" class="rounded mx-auto d-block img-thumbnail" style="width:100px;height:100px;">
         <h2 class="card-title text-center" th:utext="${user.username}">username</h2>
         <h6 class="card-subtitle mb-2 text-muted text-center">
             <span>关注：<a th:href="@{|/followee/${user.id}/3|}" th:utext="${followeeCount}">10</a></span> |

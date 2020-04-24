@@ -6,6 +6,8 @@ $(function(){
 function publish() {
     // 获取内容
     var content = $("#content").val();
+    // var converter = new showdown.Converter(); // 初始化转换器
+    // var htmlcontent  = converter.makeHtml(content); // 将 MarkDown 转为 html 格式的内容
     // 发送异步请求(POST)
     $.post(
         CONTEXT_PATH + "/post/add",
@@ -21,7 +23,8 @@ function publish() {
                 $("#hintModal").modal("hide");
                 // 刷新页面
                 if(data.code == 0) {
-                    window.location.reload();
+                    // window.location.reload();
+                    window.location.href="/index";
                 }
             }, 2000);
         }

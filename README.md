@@ -4,7 +4,7 @@
 
 ## 在线演示
 
-[MiniBlog](huqihh.com)
+[MiniBlog](http:huqihh.com)
 
 用户名和密码都为 test。
 
