@@ -166,6 +166,7 @@ public class IndexController implements BlogConstant {
                     commentVOList.add(commentVO);
                 }
             }
+            int commentCount = postService.getPostCommentCount(post.getId());
 
             long postLikeCount = likeService.getEntityLikeCount(ENTITY_TYPE_POST, post.getId());
             // 这里可能未登录，需要判断。
@@ -179,6 +180,7 @@ public class IndexController implements BlogConstant {
             postVO.put("post", post);
             postVO.put("level", level++);
             postVO.put("commentVOList", commentVOList);
+            postVO.put("commentCount", commentCount);
             postVO.put("likeCount", postLikeCount);
             postVO.put("likeStatus", postLikeStatus);
             postVOList.add(postVO);
